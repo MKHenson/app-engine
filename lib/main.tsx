@@ -11,6 +11,7 @@ import { Popup } from './components/popup/popup';
 import { Menu } from './components/menu/menu';
 import { IconMenu } from './components/icon-menu/icon-menu';
 import { Window } from './components/window/window';
+import { SearchBox } from './components/search-box/search-box';
 
 import { SplitPanel } from './components/split-panel/split-panel';
 import { LoginForm } from './components/login-form/login-form';
@@ -130,5 +131,6 @@ customElements.define( 'x-login-widget', LoginWidget );
 customElements.define( 'x-application', Application );
 customElements.define( 'x-group', Group );
 customElements.define( 'x-window', Window );
+customElements.define( 'x-search-box', SearchBox );
 
 document.body.appendChild( JML.elm( new Application() ) );

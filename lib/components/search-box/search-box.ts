@@ -1,109 +1,98 @@
+import { JML } from '../../jml/jml';
+
 /**
  * Wraps an input box with HTML that makes it look like a search bar.
  * Add a listener for the onChange event and it will be triggered either when the input
  * changes, or the search button is pressed.
  */
 export class SearchBox extends HTMLElement {
-    static defaultProps: ISearchBoxProps = {
-        onSearch: function() { throw new Error( 'onSearch not implemented' ) },
-        triggerOnBlur: true
-    };
+
+    public onSearch: ( e: Event, searchText: string ) => void;
+    public triggerOnBlur?: boolean;
 
     /**
      * Creates an instance of the search box
      */
-    constructor( props: ISearchBoxProps ) {
-        super( props );
-        this.state = { value: props.value as string };
+    constructor() {
+        super();
+
+        this.appendChild( JML.input( {
+            onkeyup: ( e: KeyboardEvent ) => {
+                if ( e.keyCode === 13 && this.onSearch )
+                    this.onSearch( e, ( e.target as HTMLInputElement ).value || '' );
+            },
+            onblur: ( e ) => this.onBlur( e ),
+            onchange: ( e ) => this.onChange( e ),
+            type: 'text'
+        }) );
+
+        this.appendChild( JML.label( {
+            onclick: ( e ) => {
+                if ( this.disabled )
+                    return;
+
+                if ( this.onSearch )
+                    this.onSearch( e, ( ( this.children[ 0 ] as HTMLInputElement ).value || '' ) );
+            }
+        }, JML.i( {
+            className: 'fa fa-search'
+        }) ) );
     }
 
-    /**
-     * Called when the props are updated
-     */
-    componentWillReceiveProps( nextProps: ISearchBoxProps ) {
-        this.setState( {
-            value: ( nextProps.value as string !== undefined ? nextProps.value as string : this.state.value )
-        });
+    get disabled(): boolean {
+        return this.classList.contains( 'disabled' );
+    }
+    set disabled( val: boolean ) {
+        this.classList.toggle( 'disabled', val );
+    }
+
+    get id(): string {
+        return ( this.children[ 0 ] as HTMLInputElement ).id;
+    }
+    set id( val: string ) {
+        ( this.children[ 0 ] as HTMLInputElement ).id = val;
+    }
+
+    get placeholder(): string {
+        return ( this.children[ 0 ] as HTMLInputElement ).placeholder;
+    }
+    set placeholder( val: string ) {
+        ( this.children[ 0 ] as HTMLInputElement ).placeholder = val;
+    }
+
+    get name(): string {
+        return ( this.children[ 0 ] as HTMLInputElement ).name;
+    }
+    set name( val: string ) {
+        ( this.children[ 0 ] as HTMLInputElement ).name = val;
     }
 
     /**
      * Called whenever the input changes
      */
-    onChange( e: React.FormEvent ) {
+    private onChange( e: Event ) {
         let text = ( e.target as HTMLInputElement ).value as string;
-        this.setState( {
-            value: text
-        });
 
-        if ( this.props.disabled )
+        if ( this.disabled )
             return;
 
-        if ( this.props.triggerOnBlur )
+        if ( this.triggerOnBlur )
             return;
 
-        if ( this.props.onSearch )
-            this.props.onSearch( e, text || '' );
+        if ( this.onSearch )
+            this.onSearch( e, text || '' );
     }
 
     /**
      * Called whenever the input loses focus
      */
-    onBlur( e: React.FormEvent ) {
-
+    private onBlur( e: Event ) {
         let text = ( e.target as HTMLInputElement ).value as string;
-        this.setState( {
-            value: text
-        });
 
-        if ( this.props.disabled )
+        if ( this.disabled )
             return;
 
-        if ( this.props.onSearch )
-            this.props.onSearch( e, text || '' );
-    }
-
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element {
-        let props: ISearchBoxProps = Object.assign( {}, this.props );
-        delete props.id;
-        delete props.name;
-        delete props.placeholder;
-        delete props.triggerOnBlur;
-        delete props.onSearch;
-
-        return <div {...props } className= {
-            'search-box ' +
-            ( props.className ? props.className : '' ) +
-            ( props.disabled ? ' disabled' : '' )
-        } >
-            <input
-                onKeyUp={
-            ( e ) => {
-                if ( e.keyCode === 13 && this.props.onSearch )
-                    this.props.onSearch( e, this.state.value || '' );
-            }
-        }
-        onBlur = {( e ) => this.onBlur( e )
-    }
-    onChange = {( e ) => this.onChange( e )}
-type = "text"
-id = { this.props.id }
-placeholder = { this.props.placeholder }
-name = { this.props.name }
-    />
-    <label
-                onClick={
-    ( e ) => {
-        if ( this.props.disabled )
-            return;
-
-        if ( this.props.onSearch )
-            this.props.onSearch( e, this.state.value || '' );
-    }
-}
-htmlFor = { this.props.id || undefined } > <span className="fa fa-search" /></label>
-    < /div>
+        if ( this.onSearch )
+            this.onSearch( e, text || '' );
     }
 }
