@@ -10,6 +10,7 @@ import { Group } from './components/group/group';
 import { Popup } from './components/popup/popup';
 import { Menu } from './components/menu/menu';
 import { IconMenu } from './components/icon-menu/icon-menu';
+import { Resizable } from './components/resizable/resizable';
 import { Window } from './components/window/window';
 import { MessageBox } from './components/forms/message-box/message-box';
 import { SearchBox } from './components/search-box/search-box';
@@ -20,10 +21,6 @@ import { LoginWidget } from './containers/login-widget/login-widget';
 import { Application } from './containers/application/application';
 import { Splash } from './containers/splash/splash';
 
-
-
-// Once the document is ready we begin
-// initialize();
 customElements.define( 'x-attention', Attention );
 customElements.define( 'x-checkbox', Checkbox );
 customElements.define( 'x-validated-text', ValidatedText );
@@ -43,6 +40,7 @@ customElements.define( 'x-splash', Splash );
 customElements.define( 'x-login-widget', LoginWidget );
 customElements.define( 'x-application', Application );
 customElements.define( 'x-group', Group );
+customElements.define( 'x-resizable', Resizable );
 customElements.define( 'x-window', Window );
 customElements.define( 'x-message-box', MessageBox );
 customElements.define( 'x-search-box', SearchBox );

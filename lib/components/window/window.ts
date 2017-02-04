@@ -1,4 +1,6 @@
 import { JML } from '../../jml/jml';
+import { Resizable } from '../resizable/resizable';
+
 // TODO: Implement resizable?
 // import { Resizable } from '../resizable/resizable';
 
@@ -17,12 +19,10 @@ import { JML } from '../../jml/jml';
  * win.content.appendChild( div );
  * win.show();
  */
-export class Window extends HTMLElement {
+export class Window extends Resizable {
 
     public modal: boolean;
     public autoCenter: boolean;
-    // public canResize: true;
-    // public animated: true
     public centerOnShow: boolean;
 
     private _resizeProxy: any;
@@ -50,6 +50,7 @@ export class Window extends HTMLElement {
 
         this._modal = JML.div( { className: 'modal-backdrop' });
         this.classList.toggle( 'animated', true );
+
         this.appendChild(
             JML.div( {
                 className: 'window-control-box',
@@ -129,7 +130,7 @@ export class Window extends HTMLElement {
     /**
      * When the user clicks the the header bar we initiate its dragging
      */
-    onHeaderDown( e: React.MouseEvent ) {
+    protected onHeaderDown( e: React.MouseEvent ) {
         e.preventDefault();
         let bounds = this.getBoundingClientRect();
         this._mouseDeltaX = e.pageX - bounds.left;
@@ -141,7 +142,7 @@ export class Window extends HTMLElement {
     /**
      * When the mouse moves and we are dragging the header bar we move the window
      */
-    onMouseMove( e: MouseEvent ) {
+    protected onMouseMove( e: MouseEvent ) {
         let elm = this;
         let x = e.pageX - this._mouseDeltaX;
         let y = e.pageY - this._mouseDeltaY;
@@ -152,7 +153,7 @@ export class Window extends HTMLElement {
     /**
      * When the mouse is up we remove the dragging event listeners
      */
-    onMouseUp() {
+    protected onMouseUp() {
         window.removeEventListener( 'mouseup', this._mouseUpProxy );
         document.body.removeEventListener( 'mousemove', this._mouseMoveProxy );
         let bounds = this.getBoundingClientRect();
@@ -172,7 +173,7 @@ export class Window extends HTMLElement {
     /**
      * Called when the window is resized
      */
-    onResize() {
+    protected onResize() {
         if ( this.autoCenter ) {
             this.style.left = ( ( this.parentElement!.offsetWidth * 0.5 ) - ( this.offsetWidth * 0.5 ) ) + 'px';
             this.style.top = ( ( this.parentElement!.offsetHeight * 0.5 ) - ( this.offsetHeight * 0.5 ) ) + 'px';

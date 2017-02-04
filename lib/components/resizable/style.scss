@@ -1,14 +1,22 @@
-.resizable {
-
+x-resizable {
+    display: inline-block;
     position: relative;
+    box-sizing: border-box;
+    transition: width 0.5s, height 0.5s;
+}
 
-    &.ghost {
-        position: absolute;
-        background: rgba( 0, 0, 0, .5 );
-        z-index: 1;
-    }
+.ghost {
+    position: absolute;
+    background: rgba( 0, 0, 0, .5 );
+    z-index: 1;
+}
 
-    .handle {
+.resizable-handle {
+    display: none;
+}
+
+.resizable {
+    .resizable-handle {
         position: absolute;
         font-size: 0.1px;
         z-index: 1;

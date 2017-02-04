@@ -1,14 +1,16 @@
+import { JML } from '../../jml/jml';
 
 /**
- * A wrapper Component that adds handles to allow for resizing of its first child component.
+ * Extends the element object with handles that allow for the element to be resized by the user
+ * eg:
+ * const resizable = new Resizable();
+ * resizable.innerHTML = 'This can be resized';
  */
 export class Resizable extends HTMLElement {
 
-    public enabled?: boolean;
-    public target?: HTMLElement;
-    public onDragStart?( e: React.MouseEvent ): boolean;
+
+    public onDragStart?( e: MouseEvent ): boolean;
     public onResized?( size: { width: number; height: number; }): void;
-    public className?: string;
 
     private _upProxy;
     private _moveProxy;
@@ -16,6 +18,7 @@ export class Resizable extends HTMLElement {
     private _allowMouseY: boolean;
     private _originRect: ClientRect;
     private _ghost: HTMLElement;
+    private _resizable: boolean;
 
     /**
      * Creates an instance of the resizer
@@ -23,21 +26,24 @@ export class Resizable extends HTMLElement {
     constructor() {
         super();
 
-        this.enabled = true;
+        this._resizable = true;
 
-        this._upProxy = this.onMouseUp.bind( this );
-        this._moveProxy = this.onMouseMove.bind( this );
+        this._upProxy = this.onResizeStop.bind( this );
+        this._moveProxy = this.onResizing.bind( this );
         this._allowMouseX = false;
         this._allowMouseY = false;
-        this._ghost = document.createElement( 'div' );
-        this._ghost.className = 'resizable ghost';
+        this.classList.toggle( 'resizable', true );
+        this._ghost = JML.div( { className: 'ghost' });
+
+        this.appendChild( JML.div( { className: 'east resizable-handle', onmousedown: ( e ) => this.onResizeStart( e, true, false ) }) );
+        this.appendChild( JML.div( { className: 'south resizable-handle', onmousedown: ( e ) => this.onResizeStart( e, false, true ) }) );
+        this.appendChild( JML.div( { className: 'south-east resizable-handle', onmousedown: ( e ) => this.onResizeStart( e, true, true ) }) );
     }
 
     /**
      * When unmounting, we remove any listeners that may still remain
      */
-    componentWillUnmount() {
-        ;
+    disconnectedCallback() {
         window.removeEventListener( 'mouseup', this._upProxy );
         window.removeEventListener( 'mousemove', this._moveProxy );
         if ( document.body.contains( this._ghost ) )
@@ -45,18 +51,31 @@ export class Resizable extends HTMLElement {
     }
 
     /**
+     * Gets if the element shows its resizable elements and can be resized by the user
+     */
+    get resizable(): boolean {
+        return this._resizable;
+    }
+
+    /**
+     * Sets if the element shows its resizable elements and can be resized by the user
+     */
+    set resizable( val: boolean ) {
+        this._resizable = val;
+        this.classList.toggle( 'resizable', val );
+    }
+
+    /**
      * When the mouse is down on the component, we add the move and up listeners
      */
-    onMouseDown( e: React.MouseEvent, allowMouseX: boolean, allowMouseY: boolean ) {
-        if ( !this.props.enabled )
+    protected onResizeStart( e: MouseEvent, allowMouseX: boolean, allowMouseY: boolean ) {
+        if ( !this.resizable )
             return;
 
-        if ( this.props.onDragStart && this.props.onDragStart( e ) === false )
+        if ( this.onDragStart && this.onDragStart( e ) === false )
             return;
 
-        let elm = this.refs[ 'resizable' ] as HTMLElement;
-
-        this._originRect = elm.getBoundingClientRect();
+        this._originRect = this.getBoundingClientRect();
         this._allowMouseX = allowMouseX;
         this._allowMouseY = allowMouseY;
 
@@ -76,50 +95,29 @@ export class Resizable extends HTMLElement {
     /**
      * When the mouse is up we remove the events
      */
-    onMouseUp( e: React.MouseEvent ) {
+    protected onResizeStop( e: MouseEvent ) {
         window.removeEventListener( 'mouseup', this._upProxy );
         window.removeEventListener( 'mousemove', this._moveProxy );
         document.body.removeChild( this._ghost );
 
-        let elm: HTMLElement;
-
-        if ( this.props.target )
-            elm = this.props.target;
-        else
-            elm = ( this.refs[ 'resizable' ] as HTMLElement ).firstElementChild as HTMLElement;
-
-        elm.style.width = this._ghost.style.width;
-        elm.style.height = this._ghost.style.height;
+        this.style.width = this._ghost.style.width;
+        this.style.height = this._ghost.style.height;
 
         const h = this._allowMouseY ? ( e.pageY - this._originRect.top ) : this._originRect.height;
         const w = this._allowMouseX ? ( e.pageX - this._originRect.left ) : this._originRect.width
 
-        if ( this.props.onResized )
-            this.props.onResized( { width: w, height: h });
+        if ( this.onResized )
+            this.onResized( { width: w, height: h });
     }
 
     /**
      * When the mouses moves we resize the component
      */
-    onMouseMove( e: React.MouseEvent ) {
-        const elm = this.refs[ 'resizable' ] as HTMLElement;
-        elm.getBoundingClientRect();
+    protected onResizing( e: MouseEvent ) {
+        this.getBoundingClientRect();
         const h = this._allowMouseY ? ( e.pageY - this._originRect.top ) : this._originRect.height;
         const w = this._allowMouseX ? ( e.pageX - this._originRect.left ) : this._originRect.width
         this._ghost.style.width = ( w ) + 'px';
         this._ghost.style.height = ( h ) + 'px';
-    }
-
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element {
-        return <div ref="resizable"
-            className={'resizable' + ( this.props.className ? ' ' + this.props.className : '' )}>
-            {this.props.children}
-            <div className="east handle" onMouseDown={( e ) => { this.onMouseDown( e, true, false ) }} />
-            <div className="south handle" onMouseDown={( e ) => { this.onMouseDown( e, false, true ) }} />
-            <div className="south-east handle" onMouseDown={( e ) => { this.onMouseDown( e, true, true ) }} />
-        </div>
     }
 }

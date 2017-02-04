@@ -9,7 +9,15 @@ enum MessageBoxType {
 }
 
 /**
- * A window to show a blocking window with a message to the user.
+ * A specialized modal window used for showing messages to the user. Typically accessed
+ * via its static methods. The modals can be chained allowing you to bring multiple issues
+ * to the user.
+ *
+ * eg:
+ * MessageBox.show('Do you think this is correct?', ['Yes', 'No'] ).then( ( answer ) => {
+ *  if (answer === 'Yes' )
+ *      return MessageBox.success('Which do you prefer?', ['A', 'B'] )
+ * })
  */
 export class MessageBox extends Window {
 
@@ -24,6 +32,7 @@ export class MessageBox extends Window {
         this.classList.toggle( 'message-box', true );
         this.modal = true;
         this.controlBox = false;
+        this.resizable = false;
         this.content.appendChild( JML.p( { className: 'message' }, message ) );
         this.content.appendChild( JML.div( { className: 'buttons' }, buttons.map(( btnText ) => {
             let button: HTMLButtonElement;
