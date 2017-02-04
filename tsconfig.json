@@ -50,6 +50,7 @@
         "lib/components/login-form/login-form.ts",
         "lib/components/register-form/register-form.ts",
         "lib/components/buttons/buttons.ts",
+        "lib/components/resizable/resizable.ts",
         "lib/components/window/window.ts",
         "lib/components/forms/message-box/message-box.ts",
         "lib/components/projects-overview/projects-overview.ts",

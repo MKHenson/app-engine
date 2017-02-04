@@ -13,11 +13,9 @@ import { IconMenu } from './components/icon-menu/icon-menu';
 import { Window } from './components/window/window';
 import { MessageBox } from './components/forms/message-box/message-box';
 import { SearchBox } from './components/search-box/search-box';
-
 import { SplitPanel } from './components/split-panel/split-panel';
 import { LoginForm } from './components/login-form/login-form';
 import { RegisterForm } from './components/register-form/register-form';
-
 import { LoginWidget } from './containers/login-widget/login-widget';
 import { Application } from './containers/application/application';
 import { Splash } from './containers/splash/splash';

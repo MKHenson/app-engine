@@ -1,20 +1,14 @@
 
-export interface IResizableProps {
-    enabled?: boolean;
-    target?: HTMLElement;
-    onDragStart?( e: React.MouseEvent ): boolean;
-    onResized?( size: { width: number; height: number; }): void;
-    className?: string;
-}
-
 /**
  * A wrapper Component that adds handles to allow for resizing of its first child component.
  */
-export class Resizable extends React.Component<IResizableProps, any> {
-    static defaultProps: IResizableProps = {
-        enabled: true,
-        className: ''
-    };
+export class Resizable extends HTMLElement {
+
+    public enabled?: boolean;
+    public target?: HTMLElement;
+    public onDragStart?( e: React.MouseEvent ): boolean;
+    public onResized?( size: { width: number; height: number; }): void;
+    public className?: string;
 
     private _upProxy;
     private _moveProxy;
@@ -26,8 +20,10 @@ export class Resizable extends React.Component<IResizableProps, any> {
     /**
      * Creates an instance of the resizer
      */
-    constructor( props: IResizableProps ) {
-        super( props );
+    constructor() {
+        super();
+
+        this.enabled = true;
 
         this._upProxy = this.onMouseUp.bind( this );
         this._moveProxy = this.onMouseMove.bind( this );
@@ -121,9 +117,9 @@ export class Resizable extends React.Component<IResizableProps, any> {
         return <div ref="resizable"
             className={'resizable' + ( this.props.className ? ' ' + this.props.className : '' )}>
             {this.props.children}
-            <div className="east handle" onMouseDown={( e ) => { this.onMouseDown( e, true, false ) } } />
-            <div className="south handle" onMouseDown={( e ) => { this.onMouseDown( e, false, true ) } } />
-            <div className="south-east handle" onMouseDown={( e ) => { this.onMouseDown( e, true, true ) } } />
+            <div className="east handle" onMouseDown={( e ) => { this.onMouseDown( e, true, false ) }} />
+            <div className="south handle" onMouseDown={( e ) => { this.onMouseDown( e, false, true ) }} />
+            <div className="south-east handle" onMouseDown={( e ) => { this.onMouseDown( e, true, true ) }} />
         </div>
     }
 }
