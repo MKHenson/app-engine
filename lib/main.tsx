@@ -12,6 +12,7 @@ import { Menu } from './components/menu/menu';
 import { IconMenu } from './components/icon-menu/icon-menu';
 import { Window } from './components/window/window';
 import { MessageBox } from './components/forms/message-box/message-box';
+import { SearchBox } from './components/search-box/search-box';
 
 import { SplitPanel } from './components/split-panel/split-panel';
 import { LoginForm } from './components/login-form/login-form';
@@ -46,16 +47,6 @@ customElements.define( 'x-application', Application );
 customElements.define( 'x-group', Group );
 customElements.define( 'x-window', Window );
 customElements.define( 'x-message-box', MessageBox );
+customElements.define( 'x-search-box', SearchBox );
 
 document.body.appendChild( JML.elm( new Application() ) );
-
-MessageBox.error( 'Hooray this is a message box!', [ 'Ok..?', 'Cancel this now!' ] )
-    .then(( button ) => {
-        alert( 'error! ' + button );
-        return MessageBox.success( 'Hooray this is a success!', [ 'Ok..?', 'Cancel this now!' ] );
-    }).then(( button ) => {
-        alert( 'success! ' + button );
-        return MessageBox.show( 'Hooray this is a success!', [ 'Ok..?', 'Cancel this now!' ] );
-    }).then(( button ) => {
-        alert( 'Yay?! ' + button );
-    })
