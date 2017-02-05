@@ -17,6 +17,8 @@ import { SearchBox } from './components/search-box/search-box';
 import { SplitPanel } from './components/split-panel/split-panel';
 import { LoginForm } from './components/login-form/login-form';
 import { RegisterForm } from './components/register-form/register-form';
+import { Tab, TabPane } from './components/tab/tab';
+
 import { LoginWidget } from './containers/login-widget/login-widget';
 import { Application } from './containers/application/application';
 import { Splash } from './containers/splash/splash';
@@ -44,5 +46,15 @@ customElements.define( 'x-resizable', Resizable );
 customElements.define( 'x-window', Window );
 customElements.define( 'x-message-box', MessageBox );
 customElements.define( 'x-search-box', SearchBox );
+customElements.define( 'x-tab-pane', TabPane );
+customElements.define( 'x-tab', Tab );
 
+const tab = new Tab();
+tab.add( new TabPane( 'Tab 1' ) )
+    .innerHTML = 'This is the first tab';
+
+tab.add( new TabPane( 'Tab 2' ) )
+    .innerHTML = 'This is the second tab';
+
+document.body.appendChild( tab );
 document.body.appendChild( JML.elm( new Application() ) );
