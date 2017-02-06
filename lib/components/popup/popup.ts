@@ -79,8 +79,21 @@ export abstract class Popup extends HTMLElement {
      */
     show( x: number, y: number, parent?: HTMLElement ) {
         parent = parent ? parent : document.body;
-        this.style.left = `${x}px`;
-        this.style.top = `${y}px`;
+        this.style.left = `${ x }px`;
+        this.style.top = `${ y }px`;
         parent.appendChild( this );
+
+        let bounds = this.getBoundingClientRect();
+        let pBounds = this.parentElement!.getBoundingClientRect();
+
+
+        // Ensure its within the bound after dropping the window
+        if ( bounds.left + bounds.width > pBounds.left + pBounds.width )
+            this.style.left = ( pBounds.left + pBounds.width - bounds.width ) + 'px';
+        else if ( bounds.left + bounds.width < pBounds.left )
+            this.style.left = ( pBounds.left + bounds.width ) + 'px';
+
+        if ( bounds.top > pBounds.top + pBounds.height - bounds.height )
+            this.style.top = ( pBounds.top + pBounds.height - bounds.height ) + 'px';
     }
 }
