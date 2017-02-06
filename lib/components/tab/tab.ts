@@ -33,6 +33,7 @@ export class Tab extends HTMLElement {
 
     private _selectedIndex: number;
     private _panes: TabPane[];
+    private _labels: HTMLDivElement[];
 
     /**
      * Creates a new instance of the tab
@@ -40,6 +41,7 @@ export class Tab extends HTMLElement {
     constructor() {
         super();
         this._panes = [];
+        this._labels = [];
         this._selectedIndex = -1;
 
         this.classList.toggle( 'has-panes', false );
@@ -53,8 +55,11 @@ export class Tab extends HTMLElement {
         super.appendChild( JML.div( { className: 'tab-panes' }) );
     }
 
-    set selectedIndex( val ) {
-        const labels = this.querySelector( '.tab-labels' ) !;
+    get selectedIndex(): number {
+        return this._selectedIndex;
+    }
+
+    set selectedIndex( val: number ) {
         const panels = this.querySelector( '.tab-panes' ) !;
         let canSelect: Promise<boolean>;
 
@@ -86,12 +91,14 @@ export class Tab extends HTMLElement {
             const previous = this._selectedIndex;
 
             if ( previous !== -1 ) {
-                panels.removeChild( this._panes[ previous ] );
-                labels.children[ previous ].classList.toggle( 'selected', false );
+                if ( this._panes[ previous ].parentElement )
+                    this._panes[ previous ].parentElement!.removeChild( this._panes[ previous ] );
+
+                this._labels[ previous ].classList.toggle( 'selected', false );
             }
 
             this._selectedIndex = val;
-            labels.children[ val ].classList.toggle( 'selected', true );
+            this._labels[ val ].classList.toggle( 'selected', true );
             panels.appendChild( pane );
         });
     }
@@ -101,11 +108,12 @@ export class Tab extends HTMLElement {
      */
     clear() {
         this._selectedIndex = -1;
-        const labels = this.querySelector( '.tab-labels' ) !;
-        const panels = this.querySelector( '.tab-panes' ) !;
+
         while ( this._panes.length > 0 ) {
-            panels.removeChild( this._panes[ 0 ] );
-            labels.children[ 0 ].classList.toggle( 'selected', false );
+            if ( this._panes[ 0 ].parentElement )
+                this._panes[ 0 ].parentElement!.removeChild( this._panes[ 0 ] );
+
+            this._labels[ 0 ].classList.toggle( 'selected', false );
             this._panes.splice( 0, 1 );
         }
 
@@ -138,12 +146,12 @@ export class Tab extends HTMLElement {
 
         if ( typeof ( canClose ) === 'boolean' ) {
             if ( canClose )
-                this.disposePane( index, pane );
+                this.disposePane( index );
         }
         else {
             canClose.then(( result ) => {
                 if ( result )
-                    this.disposePane( index, pane );
+                    this.disposePane( index );
             });
         }
     }
@@ -151,14 +159,32 @@ export class Tab extends HTMLElement {
     /**
      * Internal function that removes the pane reference, disposes it and sets a new index
      */
-    private disposePane( index: number, pane: TabPane ) {
-        this._panes.splice( index, 1 );
-        pane.parentElement!.removeChild( pane );
+    private disposePane( index: number ) {
+
+        if ( this._panes[ index ].parentElement )
+            this._panes[ index ].parentElement!.removeChild( this._panes[ index ] );
+        if ( this._labels[ index ].parentElement! )
+            this._labels[ index ].parentElement!.removeChild( this._labels[ index ] );
 
         if ( this._panes.length === 0 )
             this.classList.toggle( 'has-panes', false );
 
-        this.selectedIndex = this._selectedIndex === this._panes.length && index > 0 ? index - 1 : this._selectedIndex;
+        this._panes.splice( index, 1 );
+        this._labels.splice( index, 1 );
+
+        if ( this._selectedIndex === index ) {
+            if ( index > 0 ) {
+                this._selectedIndex = -1;
+                this.selectedIndex = index - 1;
+            }
+            else if ( this._panes.length > 0 ) {
+                this._selectedIndex = -1;
+                this.selectedIndex = 0;
+            }
+        }
+        else if ( this._panes.length === 0 ) {
+            this._selectedIndex = -1;
+        }
     }
 
     /**
@@ -187,7 +213,8 @@ export class Tab extends HTMLElement {
 
         this.classList.toggle( 'has-panes', true );
 
-        labels.appendChild(
+
+        const newLabel =
             JML.div( {
                 className: 'tab-label', onclick: () => {
                     const index = this._panes.indexOf( pane );
@@ -203,7 +230,10 @@ export class Tab extends HTMLElement {
                             this.removePane( pane );
                         }
                     }, 'X' )
-                ] ) );
+                ] );
+
+        this._labels.push( newLabel );
+        labels.appendChild( newLabel );
 
         this.selectedIndex = this._panes.length - 1;
         return pane;
