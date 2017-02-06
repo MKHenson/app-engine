@@ -54,6 +54,7 @@
         "lib/components/resizable/resizable.ts",
         "lib/components/window/window.ts",
         "lib/components/forms/message-box/message-box.ts",
+        "lib/components/project-list/project-list.ts",
         "lib/components/projects-overview/projects-overview.ts",
         "lib/containers/application/application.tsx",
         "lib/containers/login-widget/login-widget.ts",

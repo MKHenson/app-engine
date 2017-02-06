@@ -18,6 +18,7 @@ import { SplitPanel } from './components/split-panel/split-panel';
 import { LoginForm } from './components/login-form/login-form';
 import { RegisterForm } from './components/register-form/register-form';
 import { Tab, TabPane } from './components/tab/tab';
+import { ProjectList } from './components/project-list/project-list';
 
 import { LoginWidget } from './containers/login-widget/login-widget';
 import { Application } from './containers/application/application';
@@ -48,5 +49,6 @@ customElements.define( 'x-message-box', MessageBox );
 customElements.define( 'x-search-box', SearchBox );
 customElements.define( 'x-tab-pane', TabPane );
 customElements.define( 'x-tab', Tab );
+customElements.define( 'x-project-list', ProjectList );
 
 document.body.appendChild( JML.elm( new Application() ) );
