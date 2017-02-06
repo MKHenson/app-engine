@@ -16,7 +16,7 @@ import { Menu, PopupMenuItem } from '../menu/menu';
  */
 export class IconMenu extends HTMLElement {
 
-    public onItemClick: ( e: MouseEvent, item: PopupMenuItem ) => void;
+    public onItemClick: ( e: MouseEvent, item: PopupMenuItem, index: number ) => void;
 
     private _menu: Menu;
 
@@ -34,9 +34,9 @@ export class IconMenu extends HTMLElement {
             e.stopPropagation();
             this._menu.show( e.clientX, e.clientY )
         });
-        this._menu.onItemClick = ( e, item ) => {
+        this._menu.onItemClick = ( e, item, index ) => {
             if ( this.onItemClick )
-                this.onItemClick( e, item );
+                this.onItemClick( e, item, index );
         }
     }
 
