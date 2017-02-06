@@ -23,7 +23,7 @@ export class PopupMenuItem {
  */
 export class Menu extends Popup {
 
-    public onItemClick: ( e: MouseEvent, item: PopupMenuItem ) => void;
+    public onItemClick: ( e: MouseEvent, item: PopupMenuItem, index: number ) => void;
 
     private _items: PopupMenuItem[];
 
@@ -41,7 +41,7 @@ export class Menu extends Popup {
         e.preventDefault();
         e.stopPropagation();
         if ( this.onItemClick )
-            this.onItemClick( e, item );
+            this.onItemClick( e, item, this._items.indexOf( item ) );
 
         this.hide( true );
     }
