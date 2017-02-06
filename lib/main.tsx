@@ -49,12 +49,4 @@ customElements.define( 'x-search-box', SearchBox );
 customElements.define( 'x-tab-pane', TabPane );
 customElements.define( 'x-tab', Tab );
 
-const tab = new Tab();
-tab.add( new TabPane( 'Tab 1' ) )
-    .innerHTML = 'This is the first tab';
-
-tab.add( new TabPane( 'Tab 2' ) )
-    .innerHTML = 'This is the second tab';
-
-document.body.appendChild( tab );
 document.body.appendChild( JML.elm( new Application() ) );

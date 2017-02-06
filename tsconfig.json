@@ -50,8 +50,6 @@
         "lib/components/login-form/login-form.ts",
         "lib/components/register-form/register-form.ts",
         "lib/components/buttons/buttons.ts",
-        "lib/components/tab-pair/tab-pair.ts",
-        "lib/components/tab-pane/tab-pane.ts",
         "lib/components/tab/tab.ts",
         "lib/components/resizable/resizable.ts",
         "lib/components/window/window.ts",
