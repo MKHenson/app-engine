@@ -1,7 +1,8 @@
 $pager-footer-height: 50px;
 
-.pager {
+x-pager {
     height:100%;
+    display: block;
 
     .content {
         height: 100%;
@@ -10,11 +11,16 @@ $pager-footer-height: 50px;
         position: relative;
     }
 
-    &.with-navigator .content {
+    &.has-content .content {
         height: calc(100% - #{$pager-footer-height});
     }
 
+    &.has-content .navigation {
+        display: block;
+    }
+
     .navigation {
+        display: none;
         height: $pager-footer-height;
         overflow: hidden;
 

@@ -1,73 +1,85 @@
-
-
-export interface IPagerProps extends React.HTMLAttributes {
-    onUpdate: ( index: number, limit: number ) => void;
-    count: number;
-    limit?: number;
-}
-
-export interface IPagerState {
-    index?: number,
-    limit?: number
-}
+import { JML } from '../../jml/jml';
 
 /**
  * A class for handling paged content. You can use the pager like you would a div element. The content
  * of which will be displayed in a sub panel with a footer that allows the user to navigate between the content that's inserted.
- * Use the IPagerProps events to hook for each of the navigation requests and fill the content accordingly.
+ * As a consumer of this component, you must implement the remote callback to return the paged content when the user presses one
+ * of the navigation buttons.
  */
-export class Pager extends React.Component<IPagerProps, IPagerState> {
-    static defaultProps: IPagerProps = {
-        limit: 10,
-        count: 0,
-        onUpdate: () => { throw new Error( 'onUpdate not implemented' ) }
-    } as IPagerProps;
+export class Pager extends HTMLElement {
+    public limit: number;
+    public remote: ( index: number, limit: number ) => number;
+
+    public _count: number;
+    private _index: number;
+    private _limit: number;
 
     /**
      * Creates an instance of the pager
      */
-    constructor( props: IPagerProps ) {
-        super( props );
-        this.state = {
-            index: 0,
-            limit: props.limit
-        };
+    constructor( limit: number = 10 ) {
+        super();
+        this._index = 0;
+        this._limit = limit;
+        this._count = 0;
+        this.remote = null!;
+
+        super.appendChild( JML.div( { className: 'content' }) );
+        super.appendChild( JML.div( { className: 'navigation background' }, [
+            JML.div( { className: 'navigation-column back' }, [
+                JML.a( { onclick: () => this.goFirst() }, 'First <<' ),
+                JML.a( { onclick: () => this.goPrev() }, 'Prev <' )
+            ] ),
+            JML.div( { className: 'navigation-column index' }, '' ),
+            JML.div( { className: 'navigation-column next' }, [
+                JML.a( { onclick: () => this.goNext() }, '> Next' ),
+                JML.a( { onclick: () => this.goLast() }, '>> Last' )
+            ] )
+        ] ) );
+    }
+
+    appendChild( node: Node ) {
+        return ( super.querySelector( '.content' ) as HTMLDivElement ) !.appendChild( node );
+    }
+
+    private update() {
+        this.classList.toggle( 'has-content', this._count > 0 ? true : false );
+        const back = super.querySelector( '.back' ) !;
+        const index = super.querySelector( '.index' ) !;
+        const next = super.querySelector( '.next' ) !;
+        const pageNum = ( this._index / this.limit ) + 1;
+        const totalPageNumbers = Math.ceil( this._count / this.limit );
+
+        ( back.children[ 0 ] as HTMLElement ).style.display = this._index ? '' : 'none';
+        ( back.children[ 1 ] as HTMLElement ).style.display = this._index ? '' : 'none';
+        index.innerHTML = `${ pageNum } of ${ totalPageNumbers }`;
+        ( next.children[ 0 ] as HTMLElement ).style.display = this._index + this.limit < this._count ? '' : 'none';
+        ( next.children[ 1 ] as HTMLElement ).style.display = this._index < this._count - this.limit ? '' : 'none';
     }
 
     /**
      * When the component is mounted - load the projects
      */
-    componentWillMount() {
-        this.props.onUpdate( this.state.index!, this.state.limit! );
+    connectedCallback() {
+        this._count = this.remote( this._index, this.limit );
+        this.update();
     }
 
     /**
      * Calls the update function
      */
     invalidate() {
-        this.props.onUpdate( this.state.index!, this.state.limit! );
-    }
-
-    /**
-     * Gets the current page number
-     */
-    getPageNum(): number {
-        return ( this.state.index / this.state.limit ) + 1;
-    }
-
-    /**
-     * Gets the total number of pages
-     */
-    getTotalPages() {
-        return Math.ceil( this.props.count / this.state.limit );
+        this._count = this.remote( this._index, this.limit );
+        this.update();
     }
 
     /**
      * Sets the page search back to index = 0
      */
     goFirst() {
-        this.setState( { index: 0 });
-        this.props.onUpdate( 0, this.state.limit! );
+        this._index = 0;
+        this._count = this.remote( 0, this.limit );
+        this.update();
     }
 
     /**
@@ -76,75 +88,39 @@ export class Pager extends React.Component<IPagerProps, IPagerState> {
     goLast() {
         let index = 0;
 
-        if ( this.state.limit !== 1 )
-            index = this.props.count - ( this.props.count - this.state.limit ) % this.state.limit;
+        if ( this.limit !== 1 )
+            index = this._count - ( this._count - this.limit ) % this.limit;
         else
-            index = this.props.count - ( this.props.count - this.state.limit );
+            index = this._count - ( this._count - this.limit );
 
         if ( index < 0 )
             index = 0;
 
-        this.setState( { index: index });
-        this.props.onUpdate( index, this.state.limit! );
+        this._index = index;
+        this._count = this.remote( index, this.limit );
+        this.update();
     }
 
     /**
      * Sets the page search back to index = 0
      */
     goNext() {
-        let index = this.state.index + this.state.limit;
-        this.setState( { index: index });
-        this.props.onUpdate( index, this.state.limit! );
+        let index = this._index + this.limit;
+        this._index = index;
+        this._count = this.remote( index, this.limit );
+        this.update();
     }
 
     /**
      * Sets the page search back to index = 0
      */
     goPrev() {
-        let index = this.state.index - this.state.limit;
+        let index = this._index - this.limit;
         if ( index < 0 )
             index = 0;
 
-        this.setState( { index: index });
-        this.props.onUpdate( index, this.state.limit! );
-    }
-
-    /**
-     * Creates the component elements
-     */
-    render(): JSX.Element {
-        const props: IPagerProps = Object.assign( {}, this.props );
-        const count = this.props.count;
-        delete props.onUpdate;
-        delete props.count;
-        delete props.limit;
-        let navbar: JSX.Element | undefined;
-        let needsNavigation = count === 1 || count === 0 ? false : true;
-
-        if ( needsNavigation )
-            navbar = (
-                <div className="navigation background">
-                    <div className="navigation-column back">
-                        <a style={{ display: ( this.state.index ? '' : 'none' ) }} onClick={() => { this.goFirst() } }>First {'<<'} </a>
-                        <a style={{ display: ( this.state.index ? '' : 'none' ) }} onClick={() => { this.goPrev() } }>Prev {'<'}</a>
-                    </div>
-                    <div className="navigation-column index">
-                        {this.getPageNum()} of {this.getTotalPages()}
-                    </div>
-                    <div className="navigation-column next">
-                        <a style={{ display: ( this.state.index + this.state.limit < count ? '' : 'none' ) }} onClick={() => { this.goNext() } }>{'>'} Next</a>
-                        <a style={{ display: ( this.state.index < count - this.state.limit ? '' : 'none' ) }} onClick={() => { this.goLast() } }>{'>>'} Last</a>
-                    </div>
-                </div>
-            )
-
-        return <div
-            {...props}
-            className={'pager ' + ( needsNavigation ? ' with-navigator' : '' ) + ( this.props.className || '' )}>
-            <div className="content">
-                {this.props.children}
-            </div>
-            {navbar}
-        </div>
+        this._index = index;
+        this._count = this.remote( index, this.limit );
+        this.update();
     }
 }

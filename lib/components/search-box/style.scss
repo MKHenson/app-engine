@@ -1,6 +1,6 @@
 x-search-box {
     display: inline-block;
-    input {
+    input[type="text"] {
         border: none;
         transition: box-shadow 1s;
         &:focus {

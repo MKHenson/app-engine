@@ -1,5 +1,6 @@
 import { JML } from '../../jml/jml';
-// import { Pager } from '../pager/pager';
+import { Pager } from '../pager/pager';
+import { User } from '../../core/user';
 // import { ImagePreview } from '../image-preview/image-preview';
 import { SearchBox } from '../search-box/search-box';
 
@@ -11,9 +12,7 @@ export class ProjectList extends HTMLElement {
     public onProjectSelected?: ( project: HatcheryServer.IProject ) => void;
     public onProjectDClicked?: ( project: HatcheryServer.IProject ) => void;
     public noProjectMessage?: string;
-    public projects?: HatcheryServer.IProject[];
-    public numProjects?: number;
-    public onProjectsRequested?: ( index: number, limit: number, keywords: string ) => void;
+    public user: User;
 
     private _loading?: boolean;
     private _searchText?: string;
@@ -44,7 +43,13 @@ export class ProjectList extends HTMLElement {
         ] ) );
 
         this.appendChild( JML.div( { className: 'projects-container', onclick: ( e ) => this.selectProject( null, false ) }, [
-            'Pager Goes here'
+            JML.elm<Pager>( new Pager( 6 ), { remote: ( index, limit ) => this._fetchProjects( index, limit ) }, [
+                JML.div( { className: 'project-items' }, [
+                    JML.div( { className: 'error bad-input' }, '' ),
+                    JML.div( { className: 'projects' }),
+                    JML.div( { className: 'no-items unselectable' }, this.noProjectMessage )
+                ] )
+            ] )
         ] ) );
 
 
@@ -83,6 +88,32 @@ export class ProjectList extends HTMLElement {
         //                 </div>
         //             </div>
         //         </Pager>
+    }
+
+    private async _fetchProjects( index: number, limit: number ) {
+
+        // this.user.
+
+        //                      projects.map(( p ) => {
+        //                         return <ImagePreview key={p._id}
+        //                             className="project-item"
+        //                             selected={p.selected}
+        //                             src={p.image}
+        //                             label={p.name}
+        //                             labelIcon={<span className="fa fa-file" />}
+        //                             onDoubleClick={( e ) => {
+        //                                 this.selectProject( p, true );
+        //                                 e.stopPropagation();
+        //                             } }
+        //                             onClick={( e ) => {
+        //                                 this.selectProject( p, false );
+        //                                 e.stopPropagation();
+        //                             } }
+        //                             />
+        //                     })}
+
+        // this.props.onProjectsRequested( index, limit, this.state.searchText! )
+        return 0;
     }
 
     /*
