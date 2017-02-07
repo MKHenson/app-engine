@@ -4,7 +4,7 @@ import { parsers } from './parsers';
  * Make all properties in T optional as well as their base type
  */
 export type PartialHTMLElement<T> = {
-[ P in keyof T ]?: Partial<T[ P ]>;
+    [ P in keyof T ]?: Partial<T[ P ]>;
 };
 
 /**
@@ -68,7 +68,7 @@ export namespace JML {
         if ( target ) {
             const query = elm.querySelector( target ) as HTMLElement | null;
             if ( !query )
-                throw new Error( `Could not find target element '${target}'` )
+                throw new Error( `Could not find target element '${ target }'` )
 
             targetParent = query;
         }
@@ -167,6 +167,7 @@ export namespace JML {
     export function source( attrs?: null | PartialHTMLElement<HTMLSourceElement>, children?: Children ) { return elm( 'source', attrs, children ) as HTMLSourceElement; }
     export function span( attrs?: null | PartialHTMLElement<HTMLSpanElement>, children?: Children ) { return elm( 'span', attrs, children ) as HTMLSpanElement; }
     export function style( attrs?: null | PartialHTMLElement<HTMLStyleElement>, children?: Children ) { return elm( 'style', attrs, children ) as HTMLStyleElement; }
+    export function slot( attrs?: null | PartialHTMLElement<HTMLSlotElement>, children?: Children ) { return elm( 'slot', attrs, children ) as HTMLSlotElement; }
     export function table( attrs?: null | PartialHTMLElement<HTMLTableElement>, children?: Children ) { return elm( 'table', attrs, children ) as HTMLTableElement; }
     export function tbody( attrs?: null | PartialHTMLElement<HTMLTableSectionElement>, children?: Children ) { return elm( 'tbody', attrs, children ) as HTMLTableSectionElement; }
     export function td( attrs?: null | PartialHTMLElement<HTMLTableDataCellElement>, children?: Children ) { return elm( 'td', attrs, children ) as HTMLTableDataCellElement; }
