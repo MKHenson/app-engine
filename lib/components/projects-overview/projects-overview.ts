@@ -1,5 +1,6 @@
 // import { ButtonSuccess, ButtonLink, ButtonPrimary } from '../buttons/buttons';
-// import { ProjectList } from '../project-list/project-list';
+import { JML } from '../../jml/jml';
+import { ProjectList } from '../project-list/project-list';
 // import { MessageBox } from '../forms/message-box/message-box';
 
 // export interface IProjectsOverviewProps {
@@ -114,3 +115,14 @@
 //         )
 //     }
 // }
+
+/**
+ * A component for viewing projects, displaying their stats, removing, adding or opening them.
+ */
+export class ProjectsOverview extends HTMLElement {
+    constructor() {
+        super();
+
+        this.appendChild( JML.elm<ProjectList>( new ProjectList() ) )
+    }
+}

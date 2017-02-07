@@ -19,6 +19,7 @@ import { LoginForm } from './components/login-form/login-form';
 import { RegisterForm } from './components/register-form/register-form';
 import { Tab, TabPane } from './components/tab/tab';
 import { ProjectList } from './components/project-list/project-list';
+import { ProjectsOverview } from './components/projects-overview/projects-overview';
 
 import { LoginWidget } from './containers/login-widget/login-widget';
 import { Application } from './containers/application/application';
@@ -50,5 +51,6 @@ customElements.define( 'x-search-box', SearchBox );
 customElements.define( 'x-tab-pane', TabPane );
 customElements.define( 'x-tab', Tab );
 customElements.define( 'x-project-list', ProjectList );
+customElements.define( 'x-projects-overview', ProjectsOverview );
 
 document.body.appendChild( JML.elm( new Application() ) );
