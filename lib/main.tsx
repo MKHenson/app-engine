@@ -18,6 +18,7 @@ import { SplitPanel } from './components/split-panel/split-panel';
 import { LoginForm } from './components/login-form/login-form';
 import { RegisterForm } from './components/register-form/register-form';
 import { Tab, TabPane } from './components/tab/tab';
+import { Pager } from './components/pager/pager';
 import { ProjectList } from './components/project-list/project-list';
 import { ProjectsOverview } from './components/projects-overview/projects-overview';
 
@@ -52,5 +53,6 @@ customElements.define( 'x-tab-pane', TabPane );
 customElements.define( 'x-tab', Tab );
 customElements.define( 'x-project-list', ProjectList );
 customElements.define( 'x-projects-overview', ProjectsOverview );
+customElements.define( 'x-pager', Pager );
 
 document.body.appendChild( JML.elm( new Application() ) );
