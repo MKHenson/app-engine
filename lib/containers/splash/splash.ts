@@ -3,7 +3,7 @@
 // // import { LogActions } from '../../actions/logger-actions';
 // // import { OpenProject } from '../../components/open-project/open-project';
 // import { NewProject } from '../../components/new-project/new-project';
-// import { ProjectsOverview } from '../../components/projects-overview/projects-overview';
+import { ProjectsOverview } from '../../components/projects-overview/projects-overview';
 
 // /**
 //  * An interface that describes the props of the Splash Component
@@ -191,13 +191,14 @@ export class Splash extends HTMLElement {
     }
 
     connectedCallback() {
-        setTimeout(() => { this.classList.toggle('appear', true) }, 300 );
+        setTimeout(() => { this.classList.toggle( 'appear', true ) }, 300 );
     }
 
     set mode( val: SplashMode ) {
         this._mode = val;
         const container = this.querySelector( '.container' ) as HTMLDivElement;
-        innerHtml( container, JML.div( null, val ) );
+        if ( val === 'overview' )
+            innerHtml( container, JML.elm<ProjectsOverview>( new ProjectsOverview() ) );
     }
 
     get mode(): SplashMode {
