@@ -30,6 +30,7 @@
         "lib/parsers/parsers.ts",
         "lib/setup/**/*",
         "lib/jml/**/*",
+        "lib/models/**/*",
         "lib/core/properties/**/*.ts",
         "lib/core/utils.ts",
         "lib/core/event-dispatcher.ts",

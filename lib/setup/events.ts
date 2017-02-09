@@ -11,6 +11,7 @@ export type SocketEvents =
     'Error' |
     UsersInterface.SocketTokens.ClientInstructionType;
 
+
 // TODO: Can probably be refactored
 export type ProjectEvents =
     'change' |
