@@ -143,7 +143,7 @@ export class User extends EventDispatcher {
     async logout() {
         const response = await get<UsersInterface.IResponse>( `${DB.USERS}/logout` );
         if ( response.error )
-            new Error( response.message );
+            throw new Error( response.message );
 
         this.entry = null;
         this.meta = null;
