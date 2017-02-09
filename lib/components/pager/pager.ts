@@ -42,6 +42,10 @@ export class Pager extends HTMLElement {
         return ( super.querySelector( '.content' ) as HTMLDivElement ) !.appendChild( node );
     }
 
+    removeChild( node: Node ) {
+        return ( super.querySelector( '.content' ) as HTMLDivElement ) !.removeChild( node )
+    }
+
     private update() {
         this.classList.toggle( 'has-content', this._count > 0 ? true : false );
         const back = super.querySelector( '.back' ) !;
@@ -52,7 +56,7 @@ export class Pager extends HTMLElement {
 
         ( back.children[ 0 ] as HTMLElement ).style.display = this._index ? '' : 'none';
         ( back.children[ 1 ] as HTMLElement ).style.display = this._index ? '' : 'none';
-        index.innerHTML = `${ pageNum } of ${ totalPageNumbers }`;
+        index.innerHTML = `${pageNum} of ${totalPageNumbers}`;
         ( next.children[ 0 ] as HTMLElement ).style.display = this._index + this.limit < this._count ? '' : 'none';
         ( next.children[ 1 ] as HTMLElement ).style.display = this._index < this._count - this.limit ? '' : 'none';
     }
