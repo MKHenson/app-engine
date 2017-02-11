@@ -19,129 +19,11 @@ export class User extends EventDispatcher {
         this.project = null;
     }
 
-    // /**
-    // * Tries to log the user in asynchronously.
-    // * @param user The username of the user.
-    // * @param password The password of the user.
-    // * @param rememberMe Set this to true if we want to set a login cookie and keep us signed in.
-    // */
-    // login( user: string, password: string, rememberMe: boolean ): Promise<UsersInterface.IAuthenticationResponse> {
-    //     const token: UsersInterface.ILoginToken = {
-    //         username: user,
-    //         password: password,
-    //         rememberMe: rememberMe
-    //     };
-    //     let response: UsersInterface.IAuthenticationResponse;
-
-    //     return new Promise<UsersInterface.IAuthenticationResponse>(( resolve, reject ) => {
-    //         Utils.post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/login`, token ).then(( data ) => {
-    //             response = data;
-    //             if ( data.error )
-    //                 throw new Error( data.message );
-
-    //             if ( data.authenticated ) {
-    //                 this._isLoggedIn = true;
-    //                 this.entry = <UsersInterface.IUserEntry>data.user;
-    //                 return Utils.get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${data.user!.username}` );
-    //             }
-    //             else {
-    //                 this._isLoggedIn = false;
-    //                 this.resetMeta();
-    //                 return Promise.resolve( null );
-    //             }
-
-    //         }).then(( data: ModepressAddons.IGetDetails | null ) => {
-    //             if ( data && data.error )
-    //                 return reject( new Error( data.message ) );
-
-    //             this.meta = ( data ? data.data : null );
-    //             return resolve( response );
-
-    //         }).catch(( err: IAjaxError ) => {
-    //             this._isLoggedIn = false;
-    //             return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
-    //         })
-    //     });
-    // }
-
-    // /**
-    // * Tries to register a new user.
-    // * @param user The username of the user.
-    // * @param password The password of the user.
-    // * @param email The email of the user.
-    // * @param captcha The captcha of the login screen
-    // */
-    // register( user: string, password: string, email: string, captcha: string ): Promise<UsersInterface.IAuthenticationResponse> {
-    //     const that = this,
-    //         token: UsersInterface.IRegisterToken = {
-    //             username: user,
-    //             password: password,
-    //             email: email,
-    //             captcha: captcha
-    //         };
-
-
-    //     return new Promise<UsersInterface.IAuthenticationResponse>( function( resolve, reject ) {
-    //         Utils.post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/register`, token ).then( function( data ) {
-    //             if ( data.error )
-    //                 return reject( new Error( data.message ) );
-
-    //             if ( data.authenticated ) {
-    //                 that._isLoggedIn = false;
-    //                 that.entry = <UsersInterface.IUserEntry>data.user;
-    //             }
-    //             else
-    //                 that._isLoggedIn = false;
-
-    //             return resolve( data );
-
-    //         }).catch( function( err: IAjaxError ) {
-    //             return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
-    //         });
-    //     });
-    // }
-
-    // /**
-    // * This function is used to resend a user's activation code
-    // * @param user
-    // */
-    // resendActivation( user: string ): Promise<UsersInterface.IResponse> {
-    //     return new Promise<UsersInterface.IResponse>( function( resolve, reject ) {
-    //         Utils.get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/resend-activation` ).then( function( data ) {
-    //             if ( data.error )
-    //                 return reject( new Error( data.message ) );
-
-    //             return resolve( data );
-
-    //         }).catch( function( err: IAjaxError ) {
-    //             return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
-    //         })
-    //     });
-    // }
-
-    // /**
-    // * This function is used to reset a user's password.
-    // * @param user
-    // */
-    // resetPassword( user: string ): Promise<UsersInterface.IResponse> {
-    //     return new Promise<UsersInterface.IResponse>( function( resolve, reject ) {
-    //         Utils.get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/request-password-reset` ).then( function( data ) {
-    //             if ( data.error )
-    //                 return reject( new Error( data.message ) );
-
-    //             return resolve( data );
-
-    //         }).catch( function( err: IAjaxError ) {
-    //             return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
-    //         })
-    //     });
-    // }
-
     /**
      * Attempts to log the user out
      */
     async logout() {
-        const response = await get<UsersInterface.IResponse>( `${DB.USERS}/logout` );
+        const response = await get<UsersInterface.IResponse>( `${ DB.USERS }/logout` );
         if ( response.error )
             throw new Error( response.message );
 
@@ -154,7 +36,7 @@ export class User extends EventDispatcher {
      * Sends a server request to check if a user is logged in
      */
     async authenticated() {
-        const authResponse = await get<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/authenticated` );
+        const authResponse = await get<UsersInterface.IAuthenticationResponse>( `${ DB.USERS }/authenticated` );
 
         if ( authResponse.error )
             throw new Error( authResponse.message );
@@ -162,7 +44,7 @@ export class User extends EventDispatcher {
         if ( !authResponse.authenticated )
             return false;
 
-        const metaResponse = await get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${authResponse.user!.username}` );
+        const metaResponse = await get<ModepressAddons.IGetDetails>( `${ DB.API }/user-details/${ authResponse.user!.username }` );
 
         if ( metaResponse && metaResponse.error )
             throw new Error( metaResponse.message );
@@ -176,16 +58,16 @@ export class User extends EventDispatcher {
      * Attempts to log the user in using the token provided
      */
     async login( token: UsersInterface.ILoginToken ) {
-        const authResponse = await post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/login`, token );
+        const authResponse = await post<UsersInterface.IAuthenticationResponse>( `${ DB.USERS }/users/login`, token );
 
         if ( authResponse.error )
             throw new Error( authResponse.message );
 
         if ( !authResponse.authenticated )
-            throw new Error( `User could not be authenticated: '${authResponse.message}'` );
+            throw new Error( `User could not be authenticated: '${ authResponse.message }'` );
 
         let entry = authResponse.user!;
-        const metaResponse = await get<ModepressAddons.IGetDetails>( `${DB.API}/user-details/${authResponse.user!.username}` );
+        const metaResponse = await get<ModepressAddons.IGetDetails>( `${ DB.API }/user-details/${ authResponse.user!.username }` );
 
         if ( metaResponse.error )
             throw new Error( metaResponse.message );
@@ -200,7 +82,7 @@ export class User extends EventDispatcher {
      * @returns A promise with the return message from the server.
      */
     async register( token: UsersInterface.IRegisterToken ) {
-        const response = await post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/register`, token );
+        const response = await post<UsersInterface.IAuthenticationResponse>( `${ DB.USERS }/users/register`, token );
 
         if ( response.error )
             throw new Error( response.message );
@@ -214,7 +96,7 @@ export class User extends EventDispatcher {
      */
     async resetPassword( user: string ) {
 
-        const response = await get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/request-password-reset` );
+        const response = await get<UsersInterface.IResponse>( `${ DB.USERS }/users/${ user }/request-password-reset` );
 
         if ( response.error )
             throw new Error( response.message );
@@ -227,7 +109,7 @@ export class User extends EventDispatcher {
      * @returns A promise with the return message from the server.
      */
     async resendActivation( user: string ) {
-        const response = await get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/resend-activation` );
+        const response = await get<UsersInterface.IResponse>( `${ DB.USERS }/users/${ user }/resend-activation` );
         if ( response.error )
             throw new Error( response.message );
 
@@ -248,7 +130,7 @@ export class User extends EventDispatcher {
         };
 
         return new Promise<ModepressAddons.ICreateProject>( function( resolve, reject ) {
-            post<ModepressAddons.ICreateProject>( `${DB.API}/projects`, token ).then( function( data ) {
+            post<ModepressAddons.ICreateProject>( `${ DB.API }/projects`, token ).then( function( data ) {
                 if ( data.error )
                     return reject( new Error( data.message ) );
 
@@ -263,7 +145,7 @@ export class User extends EventDispatcher {
                 return resolve( data );
 
             }).catch( function( err: IAjaxError ) {
-                reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
+                reject( new Error( `An error occurred while connecting to the server. ${ err.status }: ${ err.message }` ) );
             })
         });
     }
@@ -297,7 +179,7 @@ export class User extends EventDispatcher {
         const that = this;
 
         return new Promise<Modepress.IResponse>( function( resolve, reject ) {
-            put( `${DB.API}/user-details/${that.entry!.username}`, token ).then( function( data: UsersInterface.IResponse ) {
+            put( `${ DB.API }/user-details/${ that.entry!.username }`, token ).then( function( data: UsersInterface.IResponse ) {
                 if ( data.error )
                     return reject( new Error( data.message ) );
                 else {
@@ -309,7 +191,7 @@ export class User extends EventDispatcher {
                 return resolve( data );
 
             }).catch( function( err: IAjaxError ) {
-                return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
+                return reject( new Error( `An error occurred while connecting to the server. ${ err.status }: ${ err.message }` ) );
             });
         });
     }
