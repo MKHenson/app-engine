@@ -3,29 +3,24 @@ import { DB } from '../setup/db';
 import { Collection } from './collection';
 import { EventDispatcher } from '../core/event-dispatcher';
 
-export interface ModelOptions<R> {
+export interface IModelOptions<R> {
     collection?: Collection<R>;
     id?: string;
     idAttribute?: string;
     urlRoot?: string;
     url?: string;
     resource?: any;
+    host?: string;
 }
 
 /**
  * Events dispatched by Model instances
  */
 export type ModelEvents =
-    'saved' |
+    'updated' |
     'destroyed' |
     'fetched';
 
-/**
- * Events emitted by Model instances
- */
-export interface ModelEvent<T> {
-    serverResponse: T;
-}
 
 export class Model<R> extends EventDispatcher {
     private _id: string;
@@ -34,13 +29,15 @@ export class Model<R> extends EventDispatcher {
     public urlRoot: string | null;
     public url: string | null;
     private _resource: R | null;
+    public host: string;
 
-    constructor( options?: ModelOptions<R> ) {
+    constructor( options?: IModelOptions<R> ) {
         super();
         this._id = options && options.id || '';
         this.idAttribute = options && options.idAttribute || '_id';
         this.url = options && options.url || '';
         this.collection = options && options.collection || null;
+        this.host = options && options.host || DB.API;
 
         this._resource = null;
         if ( options && options.resource ) {
@@ -49,18 +46,34 @@ export class Model<R> extends EventDispatcher {
         }
     }
 
+    getNormalizedUrl() {
+        if ( this.urlRoot )
+            return this.urlRoot;
+
+        if ( this.collection )
+            return this.collection.getNormalizedUrl() + this.url + this._id;
+
+        return this.url + this._id;
+    }
+
     /**
      * Generates the URL path of the model's REST endpoint
      */
     protected getRoutPath(): string {
-        if ( !this.collection || !this.urlRoot )
-            throw new Error( 'You must specify a urlRoot or the model must be part of a collection before this action can be completed' );
+        return `${ this.host }/${ this.getNormalizedUrl() }`;
+    }
 
-        return DB.HOST + '/' + ( this.urlRoot || this.collection.url ) + this._id;
+    get id(): string {
+        return this._id;
     }
 
     get resource(): R {
         return this.resource;
+    }
+
+    set resource( val: R ) {
+        this._resource = val;
+        this._id = val ? val[ this.idAttribute ] : '';
     }
 
     async update( options?: any ) {
@@ -72,6 +85,7 @@ export class Model<R> extends EventDispatcher {
 
         // TODO: Updates should actually send data, and have the same data sent back by the server
         // as confirmation of its setting. A parse then needs to called to clean the data.
+        this.emit<ModelEvents, void>( 'updated' );
     }
 
     async destroy( options?: any ) {
@@ -90,6 +104,7 @@ export class Model<R> extends EventDispatcher {
 
         this._resource = this.parse<T>( response.data );
         this._id = this._resource[ this.idAttribute ];
+        this.emit<ModelEvents, void>( 'fetched' );
     }
 
     parse<T>( dbModel: T | R ): R { return dbModel as R; }

@@ -7,26 +7,40 @@ export interface ICollectionOptions<T> {
     modelClass?: typeof Model;
     modelId?: string;
     models?: Model<T>[];
+    parent?: Model<any>;
+    host?: string;
 }
 
 export class Collection<T> extends EventDispatcher {
     public modelClass: typeof Model;
     public url: string;
     public modelId: string;
+    public host: string;
     public models: Model<T>[];
+    private _parent: Model<any> | null;
+
 
     constructor( url: string, options?: ICollectionOptions<T> ) {
         super();
         this.url = url;
         this.modelId = options && options.modelId || '_id';
         this.models = options && options.models || [];
+        this._parent = options && options.parent || null;
+        this.host = options && options.host || DB.HOST;
+    }
+
+    getNormalizedUrl() {
+        if ( this._parent )
+            this._parent.getNormalizedUrl() + this.url;
+
+        return this.url;
     }
 
     /**
      * Generates the URL path of the model's REST endpoint
      */
     protected getRoutPath(): string {
-        return DB.HOST + '/' + this.url;
+        return this.host + '/' + this.getNormalizedUrl();
     }
 
     async fetch() {
