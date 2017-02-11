@@ -1,6 +1,6 @@
-import { EventDispatcher } from './event-dispatcher';
+import { EventDispatcher } from '../core/event-dispatcher';
 import { Project } from './project';
-import { IAjaxError, post, put, get } from './utils';
+import { IAjaxError, post, put, get } from '../core/utils';
 import { DB } from '../setup/db';
 
 /**

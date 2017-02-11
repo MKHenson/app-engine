@@ -1,19 +1,19 @@
-import { EventDispatcher } from './event-dispatcher';
-import { Editor } from './editors/editor';
+import { EventDispatcher } from '../core/event-dispatcher';
+import { Editor } from '../core/editors/editor';
 import { Build } from './build';
 import { User } from './user';
 import { ResourceType } from '../setup/enums';
 import { ProjectEvents, IResourceEvent, IEditorEvent, ResourceEvents } from '../setup/events';
-import { ProjectResource } from './project-resources/project-resource';
-import { Asset } from './project-resources/asset';
-import { Container } from './project-resources/container';
-import { Script } from './project-resources/script';
-import { File } from './project-resources/file';
-import { GroupArray } from './project-resources/group-array';
+import { ProjectResource } from '../core/project-resources/project-resource';
+import { Asset } from '../core/project-resources/asset';
+import { Container } from '../core/project-resources/container';
+import { Script } from '../core/project-resources/script';
+import { File } from '../core/project-resources/file';
+import { GroupArray } from '../core/project-resources/group-array';
 import { DB } from '../setup/db';
-import { IAjaxError, get, put, del, post, generateLocalId } from './utils';
-import { PluginManager } from './plugin-manager';
-import { ContainerSchema } from './editors/container-schema/container-schema';
+import { IAjaxError, get, put, del, post, generateLocalId } from '../core/utils';
+import { PluginManager } from '../core/plugin-manager';
+import { ContainerSchema } from '../core/editors/container-schema/container-schema';
 
 /**
  * A project is the logical container of all resources and functions related
@@ -119,7 +119,7 @@ export class Project extends EventDispatcher {
     updateDetails( token: HatcheryServer.IProject ): Promise<UsersInterface.IResponse> {
         const entry = this._entry;
         return new Promise<UsersInterface.IResponse>(( resolve, reject ) => {
-            put<UsersInterface.IResponse>( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}`, token ).then(( data ) => {
+            put<UsersInterface.IResponse>( `${ DB.API }/users/${ this._entry.user }/projects/${ this._entry._id }`, token ).then(( data ) => {
                 if ( data.error )
                     return reject( new Error( data.message ) );
                 else {
@@ -135,7 +135,7 @@ export class Project extends EventDispatcher {
                 return resolve( data );
 
             }).catch(( err: IAjaxError ) => {
-                return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
+                return reject( new Error( `An error occurred while connecting to the server. ${ err.status }: ${ err.message }` ) );
             });
         });
     }
@@ -150,9 +150,9 @@ export class Project extends EventDispatcher {
 
             // If the project has a build then load it - otherwise create a new one
             if ( this._entry.build && this._entry.build !== '' )
-                promise = get( `${DB.API}/users/${username}/projects/${this._entry._id}/builds/${this._entry.build}?verbose=true` );
+                promise = get( `${ DB.API }/users/${ username }/projects/${ this._entry._id }/builds/${ this._entry.build }?verbose=true` );
             else
-                promise = post( `${DB.API}/users/${username}/projects/${this._entry._id}/builds?set-current=true`, null );
+                promise = post( `${ DB.API }/users/${ username }/projects/${ this._entry._id }/builds?set-current=true`, null );
 
             promise.then(( data: ModepressAddons.IGetBuilds ) => {
                 if ( data.error )
@@ -163,7 +163,7 @@ export class Project extends EventDispatcher {
                 return resolve( this.curBuild );
 
             }).catch(( err: IAjaxError ) => {
-                return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
+                return reject( new Error( `An error occurred while connecting to the server. ${ err.status }: ${ err.message }` ) );
             });
         });
     }
@@ -180,7 +180,7 @@ export class Project extends EventDispatcher {
             const className = ( <HatcheryServer.IAsset>entry ).className!;
             const aClass = PluginManager.getSingleton().getAssetClass( className );
             if ( !aClass )
-                throw new Error( `Could not find asset class ${className}` );
+                throw new Error( `Could not find asset class ${ className }` );
 
             resource = new Asset( aClass, entry );
             this._restPaths[ type ].array.push( <Asset>resource );
@@ -227,11 +227,11 @@ export class Project extends EventDispatcher {
                 paths[ t ].array.splice( paths[ t ].array.length );
             }
 
-            arr.push( get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ ResourceType.FILE ].url}?verbose=true` ) );
-            arr.push( get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ ResourceType.ASSET ].url}?verbose=true` ) );
-            arr.push( get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ ResourceType.CONTAINER ].url}?verbose=true` ) );
-            arr.push( get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ ResourceType.GROUP ].url}?verbose=true` ) );
-            arr.push( get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ ResourceType.SCRIPT ].url}?verbose=true` ) );
+            arr.push( get( `${ DB.API }/users/${ this._entry.user }/projects/${ this._entry._id }/${ paths[ ResourceType.FILE ].url }?verbose=true` ) );
+            arr.push( get( `${ DB.API }/users/${ this._entry.user }/projects/${ this._entry._id }/${ paths[ ResourceType.ASSET ].url }?verbose=true` ) );
+            arr.push( get( `${ DB.API }/users/${ this._entry.user }/projects/${ this._entry._id }/${ paths[ ResourceType.CONTAINER ].url }?verbose=true` ) );
+            arr.push( get( `${ DB.API }/users/${ this._entry.user }/projects/${ this._entry._id }/${ paths[ ResourceType.GROUP ].url }?verbose=true` ) );
+            arr.push( get( `${ DB.API }/users/${ this._entry.user }/projects/${ this._entry._id }/${ paths[ ResourceType.SCRIPT ].url }?verbose=true` ) );
         }
         else {
             // Dispose each of the resources for that type
@@ -241,7 +241,7 @@ export class Project extends EventDispatcher {
             }
 
 
-            arr.push( get( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ type ].url}?verbose=true` ) );
+            arr.push( get( `${ DB.API }/users/${ this._entry.user }/projects/${ this._entry._id }/${ paths[ type ].url }?verbose=true` ) );
             paths[ type ].array.splice( 0, paths[ type ].array.length );
         }
 
@@ -294,7 +294,7 @@ export class Project extends EventDispatcher {
                 return resolve( createdResources );
 
             }).catch(( err: IAjaxError ) => {
-                return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
+                return reject( new Error( `An error occurred while connecting to the server. ${ err.status }: ${ err.message }` ) );
             });
         });
     }
@@ -312,7 +312,7 @@ export class Project extends EventDispatcher {
             return Promise.reject<Error>( new Error( 'Could not find a resource with that ID' ) );
 
         return new Promise<T>(( resolve, reject ) => {
-            get<Modepress.IGetArrayResponse<T>>( `${DB.API}/users/${this._entry.user}/projects/${this._entry._id}/${paths[ r.type ].url}/${id}?verbose=true` ).then(( response ) => {
+            get<Modepress.IGetArrayResponse<T>>( `${ DB.API }/users/${ this._entry.user }/projects/${ this._entry._id }/${ paths[ r.type ].url }/${ id }?verbose=true` ).then(( response ) => {
                 if ( response.error )
                     return reject( new Error( response.message ) );
 
@@ -330,7 +330,7 @@ export class Project extends EventDispatcher {
                 return resolve( r.resource );
 
             }).catch(( err: IAjaxError ) => {
-                return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
+                return reject( new Error( `An error occurred while connecting to the server. ${ err.status }: ${ err.message }` ) );
             });
         });
     }
@@ -351,7 +351,7 @@ export class Project extends EventDispatcher {
             for ( const r of paths[ p ].array )
                 if ( r.entry._id === id ) {
                     resource = r;
-                    url = `${DB.API}/users/${details.username}/projects/${projId}/${paths[ p ].url}/${id}`;
+                    url = `${ DB.API }/users/${ details.username }/projects/${ projId }/${ paths[ p ].url }/${ id }`;
                     break;
                 }
 
@@ -372,7 +372,7 @@ export class Project extends EventDispatcher {
                 return resolve( response );
 
             }).catch(( err: IAjaxError ) => {
-                reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
+                reject( new Error( `An error occurred while connecting to the server. ${ err.status }: ${ err.message }` ) );
             });
         });
     }
@@ -389,23 +389,23 @@ export class Project extends EventDispatcher {
         const r = this.getResourceByID( id, type );
 
         if ( !r )
-            throw new Error( `Could not find the resource ${id}` );
+            throw new Error( `Could not find the resource ${ id }` );
 
-        const url: string = `${DB.API}/users/${details.username}/projects/${projId}/${paths[ r.type ].url}/${id}`;
+        const url: string = `${ DB.API }/users/${ details.username }/projects/${ projId }/${ paths[ r.type ].url }/${ id }`;
         const resource: ProjectResource<HatcheryServer.IResource> = r.resource;
         resource.onSaving();
 
         return new Promise<boolean>(( resolve, reject ) => {
             put<Modepress.IResponse>( url, resource.entry ).then(( response ) => {
                 if ( response.error )
-                    return reject( new Error( `Could not save resource [${resource.entry._id}]: '${response.message}'` ) );
+                    return reject( new Error( `Could not save resource [${ resource.entry._id }]: '${ response.message }'` ) );
 
                 resource.saved = true;
                 this.invalidate();
                 return resolve( true );
 
             }).catch(( err: IAjaxError ) => {
-                reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
+                reject( new Error( `An error occurred while connecting to the server. ${ err.status }: ${ err.message }` ) );
             });
         });
     }
@@ -439,7 +439,7 @@ export class Project extends EventDispatcher {
         const details = User.get.entry!;
         const projId = this._entry._id;
         const paths = this._restPaths;
-        const url: string = `${DB.API}/users/${details.username}/projects/${projId}/${paths[ type ].url}/${id}`;
+        const url: string = `${ DB.API }/users/${ details.username }/projects/${ projId }/${ paths[ type ].url }/${ id }`;
         const array = paths[ type ].array;
         let resource: ProjectResource<HatcheryServer.IResource> | undefined;
 
@@ -463,13 +463,13 @@ export class Project extends EventDispatcher {
 
                 const editor = this.getEditorByResource( resource! );
                 if ( !editor )
-                    throw new Error( `Could not find editor for resource ${resource!.entry._id}` );
+                    throw new Error( `Could not find editor for resource ${ resource!.entry._id }` );
 
                 this.removeEditor( editor );
                 return resolve( true );
 
             }).catch(( err: IAjaxError ) => {
-                reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
+                reject( new Error( `An error occurred while connecting to the server. ${ err.status }: ${ err.message }` ) );
             });
         });
     }
@@ -482,7 +482,7 @@ export class Project extends EventDispatcher {
     copyResource<T extends HatcheryServer.IResource>( id: string, type: ResourceType ): Promise<ProjectResource<T>> {
         const r = this.getResourceByID( id, type );
         if ( !r )
-            throw new Error( `Could not find the resource ${id}` );
+            throw new Error( `Could not find the resource ${ id }` );
 
         const resource: ProjectResource<HatcheryServer.IResource> = r.resource;
 
@@ -546,7 +546,7 @@ export class Project extends EventDispatcher {
         const details = User.get.entry!;
         const projId = this._entry._id;
         const paths = this._restPaths;
-        const url: string = `${DB.API}/users/${details.username}/projects/${projId}/${paths[ type ].url}`;
+        const url: string = `${ DB.API }/users/${ details.username }/projects/${ projId }/${ paths[ type ].url }`;
 
         if ( data.shallowId === undefined )
             data.shallowId = generateLocalId();
@@ -571,7 +571,7 @@ export class Project extends EventDispatcher {
                 return resolve( resource );
 
             }).catch(( err: IAjaxError ) => {
-                return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
+                return reject( new Error( `An error occurred while connecting to the server. ${ err.status }: ${ err.message }` ) );
             });
         });
     }

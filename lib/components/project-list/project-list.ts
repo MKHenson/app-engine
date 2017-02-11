@@ -1,6 +1,6 @@
 import { JML } from '../../jml/jml';
 import { Pager } from '../pager/pager';
-import { User } from '../../core/user';
+import { User } from '../../models/user';
 // import { ImagePreview } from '../image-preview/image-preview';
 import { SearchBox } from '../search-box/search-box';
 

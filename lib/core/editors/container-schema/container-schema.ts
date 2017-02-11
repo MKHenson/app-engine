@@ -5,7 +5,7 @@ import { Behaviour } from './items/behaviour';
 import { BehaviourAsset } from './items/behaviour-asset';
 import { CanvasItem } from './items/canvas-item';
 import { Container } from '../../project-resources/container';
-import { Project } from '../../project';
+import { Project } from '../../../models/project';
 import { PluginManager } from '../../plugin-manager';
 import { SelectionChanged } from './actions/selection-changed';
 import { LinkCreated } from './actions/link-created';

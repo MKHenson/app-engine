@@ -148,7 +148,7 @@ import { ProjectsOverview } from '../../components/projects-overview/projects-ov
 // export { ConnectedSplash as Splash };
 
 import { JML, innerHtml } from '../../jml/jml';
-import { User } from '../../core/user';
+import { User } from '../../models/user';
 
 export type SplashMode = 'new' | 'open' | 'overview';
 

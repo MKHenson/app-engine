@@ -1,5 +1,5 @@
 import { JML, innerHtml } from '../../jml/jml';
-import { User } from '../../core/user';
+import { User } from '../../models/user';
 import { Router } from '../../core/router';
 import { LoginWidget } from '../login-widget/login-widget';
 import { Splash } from '../splash/splash';

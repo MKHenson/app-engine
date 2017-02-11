@@ -1,6 +1,6 @@
 import { EventDispatcher } from '../event-dispatcher';
 import { EditorEvents } from '../../setup/events';
-import { Project } from '../project';
+import { Project } from '../../models/project';
 import { EditorAction } from './editor-action';
 import { ProjectResource } from '../project-resources/project-resource';
 

@@ -1,6 +1,6 @@
 ﻿import { Prop } from './prop';
 import { PropertyType } from '../../setup/enums';
-import { User } from '../user';
+import { User } from '../../models/user';
 import { ProjectResource } from '../project-resources/project-resource';
 
 /**

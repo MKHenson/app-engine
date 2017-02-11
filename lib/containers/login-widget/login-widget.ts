@@ -1,7 +1,7 @@
 import { RegisterForm } from '../../components/register-form/register-form';
 import { LoginForm } from '../../components/login-form/login-form';
 import { JML, empty } from '../../jml/jml';
-import { User } from '../../core/user';
+import { User } from '../../models/user';
 import { AttentionType } from '../../setup/enums';
 
 /**

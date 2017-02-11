@@ -1,6 +1,6 @@
-import { put } from './utils';
+import { put } from '../core/utils';
 import { DB } from '../setup/db';
-import { IAjaxError } from './utils';
+import { IAjaxError } from '../core/utils';
 
 /**
 * A wrapper for project builds
@@ -24,7 +24,7 @@ export class Build {
         const entry = this.entry;
         const that = this;
         return new Promise<boolean>( function( resolve, reject ) {
-            put<UsersInterface.IResponse>( `${DB.API}/users/${that.entry.user}/projects/${that.entry.projectId}/builds/${that.entry._id}`, token ).then( function( data ) {
+            put<UsersInterface.IResponse>( `${ DB.API }/users/${ that.entry.user }/projects/${ that.entry.projectId }/builds/${ that.entry._id }`, token ).then( function( data ) {
                 if ( data.error )
                     return reject( new Error( data.message ) );
                 else {
@@ -36,7 +36,7 @@ export class Build {
                 return resolve( true );
 
             }).catch( function( err: IAjaxError ) {
-                return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
+                return reject( new Error( `An error occurred while connecting to the server. ${ err.status }: ${ err.message }` ) );
             });
         });
     }
