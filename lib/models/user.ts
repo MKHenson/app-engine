@@ -1,20 +1,19 @@
-import { EventDispatcher } from '../core/event-dispatcher';
 import { Project } from './project';
+import { Model } from './model';
+import { UserMeta } from './user-meta';
 import { IAjaxError, post, put, get } from '../core/utils';
 import { DB } from '../setup/db';
 
 /**
 * This class is used to represent the user who is logged into Animate.
 */
-export class User extends EventDispatcher {
+export class User extends Model<UsersInterface.IUserEntry> {
     private static _singleton: User;
-    public entry: UsersInterface.IUserEntry | null;
-    public meta: HatcheryServer.IUserMeta | null;
     public project: Project | null;
+    public meta: UserMeta | null;
 
     constructor() {
         super();
-        this.entry = null;
         this.meta = null;
         this.project = null;
     }
@@ -27,7 +26,6 @@ export class User extends EventDispatcher {
         if ( response.error )
             throw new Error( response.message );
 
-        this.entry = null;
         this.meta = null;
         return true;
     }
@@ -44,13 +42,10 @@ export class User extends EventDispatcher {
         if ( !authResponse.authenticated )
             return false;
 
-        const metaResponse = await get<ModepressAddons.IGetDetails>( `${ DB.API }/user-details/${ authResponse.user!.username }` );
+        this.meta = new UserMeta( { id: authResponse.user!.username });
+        await this.meta.fetch();
 
-        if ( metaResponse && metaResponse.error )
-            throw new Error( metaResponse.message );
-
-        this.entry = authResponse.user!;
-        this.meta = metaResponse.data;
+        this.resource = authResponse.user!;
         return true;
     }
 
@@ -67,13 +62,10 @@ export class User extends EventDispatcher {
             throw new Error( `User could not be authenticated: '${ authResponse.message }'` );
 
         let entry = authResponse.user!;
-        const metaResponse = await get<ModepressAddons.IGetDetails>( `${ DB.API }/user-details/${ authResponse.user!.username }` );
+        this.meta = new UserMeta( { id: authResponse.user!.username });
+        await this.meta.fetch();
 
-        if ( metaResponse.error )
-            throw new Error( metaResponse.message );
-
-        this.meta = metaResponse!.data;
-        this.entry = entry;
+        this.resource = entry;
         return this;
     }
 
@@ -179,7 +171,7 @@ export class User extends EventDispatcher {
         const that = this;
 
         return new Promise<Modepress.IResponse>( function( resolve, reject ) {
-            put( `${ DB.API }/user-details/${ that.entry!.username }`, token ).then( function( data: UsersInterface.IResponse ) {
+            put( `${ DB.API }/user-details/${ that.resource!.username }`, token ).then( function( data: UsersInterface.IResponse ) {
                 if ( data.error )
                     return reject( new Error( data.message ) );
                 else {
