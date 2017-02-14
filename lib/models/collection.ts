@@ -9,27 +9,34 @@ export interface ICollectionOptions<T> {
     models?: Model<T>[];
     parent?: Model<any>;
     host?: string;
+    url?: string;
+    baseUrl?: string;
 }
 
 export class Collection<T> extends EventDispatcher {
     public modelClass: typeof Model;
     public url: string;
+    public baseUrl: string | null;
     public modelId: string;
     public host: string;
     public models: Model<T>[];
     private _parent: Model<any> | null;
 
 
-    constructor( url: string, options?: ICollectionOptions<T> ) {
+    constructor( options?: ICollectionOptions<T> ) {
         super();
-        this.url = url;
+        this.url = options && options.url || '';
         this.modelId = options && options.modelId || '_id';
         this.models = options && options.models || [];
         this._parent = options && options.parent || null;
         this.host = options && options.host || DB.HOST;
+        this.baseUrl = options && options.baseUrl || null;
     }
 
     getNormalizedUrl() {
+        if ( this.baseUrl )
+            return this.baseUrl;
+
         if ( this._parent )
             this._parent.getNormalizedUrl() + this.url;
 
