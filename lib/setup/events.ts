@@ -1,7 +1,6 @@
 ﻿import { BehaviourDefinition } from '../core/behaviour-definition';
 import { Editor } from '../core/editors/editor';
-import { ProjectResource } from '../core/project-resources/project-resource';
-import { Container } from '../core/project-resources/container';
+import { Container } from '../models/container';
 import { TreeNodeModel } from '../components/treeview/treenode-model';
 
 /**
@@ -25,13 +24,7 @@ export type ProjectEvents =
     'build_selected' |
     'build_saved';
 
-/**
- * Events related to project resources
- */
-export type ResourceEvents =
-    'edited' |
-    'refreshed' |
-    'modified';
+
 
 /**
  * Events related to the resource editors
@@ -61,12 +54,7 @@ export interface ITemplateEvent {
     template: BehaviourDefinition;
 }
 
-/**
- * An event token for events dispatched by changes to or from resources
- */
-export interface IResourceEvent {
-    resource: ProjectResource<HatcheryServer.IResource>;
-}
+
 
 /**
  * An event token for events dispatched by changes to or from project containers

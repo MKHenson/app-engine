@@ -1,5 +1,5 @@
 import { ProjectResource } from './project-resource';
-import { AssetClass } from '../asset-class';
+import { AssetClass } from '../core/asset-class';
 
 
 /**
@@ -28,26 +28,26 @@ export class Asset extends ProjectResource<HatcheryServer.IAsset> {
     * Writes this assset to a readable string
     */
     toString() {
-        return this.entry.name + '(' + this.entry.shallowId + ')';
+        return this.resource.name + '(' + this.resource.shallowId + ')';
     }
 
-    /**
-    * Use this function to reset the asset properties
-    * @param name The name of the asset
-    * @param className The 'class' or 'template' name of the asset
-    * @param json The JSON data of the asset.
-    */
-    update( name: string, className: string, json: any = {}) {
-        this.entry.name = name;
-        this.saved = true;
-        this.properties = json;
-        this.entry.className = className;
-    }
+    // /**
+    // * Use this function to reset the asset properties
+    // * @param name The name of the asset
+    // * @param className The 'class' or 'template' name of the asset
+    // * @param json The JSON data of the asset.
+    // */
+    // update( name: string, className: string, json: any = {}) {
+    //     this.entry.name = name;
+    //     this.saved = true;
+    //     this.properties = json;
+    //     this.entry.className = className;
+    // }
 
-    /**
-    * Disposes and cleans up the data of this asset
-    */
-    dispose() {
-        super.dispose();
-    }
+    // /**
+    // * Disposes and cleans up the data of this asset
+    // */
+    // dispose() {
+    //     super.dispose();
+    // }
 }

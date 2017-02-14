@@ -1,7 +1,7 @@
 ﻿import { Prop } from './prop';
 import { PropAsset } from './prop-asset';
 import { PropertyType } from '../../setup/enums';
-import { ProjectResource } from '../project-resources/project-resource';
+import { ProjectResource } from '../../models/project-resource';
 
 /**
 * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data

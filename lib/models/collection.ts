@@ -4,7 +4,7 @@ import { EventDispatcher } from '../core/event-dispatcher';
 import { Model } from './model';
 
 export interface ICollectionOptions<T> {
-    modelClass?: typeof Model;
+    modelClass?: Function;
     modelId?: string;
     models?: Model<T>[];
     parent?: Model<any>;
@@ -50,8 +50,8 @@ export class Collection<T> extends EventDispatcher {
         return this.host + '/' + this.getNormalizedUrl();
     }
 
-    async fetch() {
-        const response = await get<Modepress.IGetArrayResponse<T>>( this.getRoutPath() );
+    async fetch( queryParams?: any ) {
+        const response = await get<Modepress.IGetArrayResponse<T>>( this.getRoutPath(), queryParams );
         if ( response.error )
             throw new Error( response.message );
 

@@ -1,6 +1,6 @@
 import { ENUM } from '../../../event-dispatcher';
 import { Component } from '../../../../components/component';
-import { Container } from '../../../project-resources/container';
+import { Container } from '../../../../models/container';
 
 export class CanvasEvents extends ENUM {
     constructor( v: string ) { super( v ); }

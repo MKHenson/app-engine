@@ -1,7 +1,7 @@
 ﻿import { Prop } from './prop';
 import { PropertyType } from '../../setup/enums';
 import { User } from '../../models/user';
-import { ProjectResource } from '../project-resources/project-resource';
+import { ProjectResource } from '../../models/project-resource';
 
 /**
 * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
@@ -35,7 +35,7 @@ export class PropAsset extends Prop<ProjectResource<HatcheryServer.IResource> | 
         token.classNames = this.classNames;
 
         // Overrites the value as the resources shallow Id
-        token.value = ( this._value ? this._value.entry.shallowId : -1 );
+        token.value = ( this._value ? this._value.resource.shallowId : -1 );
         return token;
     }
 

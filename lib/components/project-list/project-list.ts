@@ -1,7 +1,8 @@
-import { JML } from '../../jml/jml';
+import { JML, empty } from '../../jml/jml';
 import { Pager } from '../pager/pager';
 // import { User } from '../../models/user';
 import { Projects } from '../../models/projects';
+import { Project } from '../../models/project';
 // import { ImagePreview } from '../image-preview/image-preview';
 import { SearchBox } from '../search-box/search-box';
 
@@ -30,7 +31,6 @@ export class ProjectList extends HTMLElement {
         this._loading = false;
         this._selectedProject = null;
         this._errorMsg = null;
-        this._projects = new Projects();
         this._searchText = '';
 
         this.appendChild( JML.div( { className: 'projects-toolbar background' }, [
@@ -92,10 +92,18 @@ export class ProjectList extends HTMLElement {
     }
 
     async connectedCallback() {
-        if ( this.username )
-            this._projects.baseUrl = `users/${this.username}/`;
+        if ( this.username ) {
+            this._projects = new Projects();
+            this._projects.baseUrl = `users/${ this.username }/`;
 
-        await this._projects.fetch();
+            await this._projects.fetch( { index: 0, limit: 6 });
+
+            const projectsDom = this.querySelector( '.projects' ) !;
+            empty( projectsDom );
+
+            for ( const project of this._projects.models as Project[] )
+                projectsDom.appendChild( JML.div( project.resource.name ) );
+        }
     }
 
     private async _fetchProjects( index: number, limit: number ) {

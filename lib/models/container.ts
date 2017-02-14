@@ -1,6 +1,6 @@
 import { ProjectResource } from './project-resource';
-import { PropBool } from '../properties/prop';
-import { Canvas } from '../editors/container-schema/items/canvas';
+import { PropBool } from '../core/properties/prop';
+import { Canvas } from '../core/editors/container-schema/items/canvas';
 
 
 /**
@@ -38,7 +38,7 @@ export class Container extends ProjectResource<HatcheryServer.IContainer> {
      * Use this function to initialize the resource. This called just after the resource is created and its entry set.
      */
     initialize() {
-        const containerToken = this.entry.json!;
+        const containerToken = this.resource.json!;
         if ( containerToken.properties )
             this._properties.deTokenize( containerToken.properties );
     }

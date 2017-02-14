@@ -1,39 +1,55 @@
-﻿import { EventDispatcher } from '../../core/event-dispatcher';
-import { generateLocalId } from '../../core/utils';
-import { EditableSet } from '../properties/editable-set';
-import { ResourceEvents, IResourceEvent } from '../../setup/events';
+﻿import { Model, IModelOptions } from './model';
+// import { generateLocalId } from '../core/utils';
+import { EditableSet } from '../core/properties/editable-set';
+
+
+/**
+ * Events related to project resources
+ */
+export type ResourceEvents =
+    'edited' |
+    'refreshed' |
+    'modified';
+
+/**
+ * An event token for events dispatched by changes to or from resources
+ */
+export interface IResourceEvent {
+    resource: ProjectResource<HatcheryServer.IResource>;
+}
 
 /**
 * A base class for all project resources
 */
-export abstract class ProjectResource<T extends HatcheryServer.IResource> extends EventDispatcher {
-    public entry: T;
+export abstract class ProjectResource<T extends HatcheryServer.IResource> extends Model<T> {
+
     private _saved: boolean;
     protected _properties: EditableSet;
     protected _options: { [ s: string ]: any; };
 
-    constructor( entry: T ) {
-        super();
+    constructor( options?: IModelOptions<T> ) {
+        super( options );
 
-        this.entry = entry;
-        const resource: HatcheryServer.IResource = <HatcheryServer.IResource>entry;
-        resource.shallowId = generateLocalId( resource.shallowId );
+        throw This must be implemented in collections when they add the resource for the first time!
+
+        // const resource: HatcheryServer.IResource = <HatcheryServer.IResource>entry;
+        // resource.shallowId = generateLocalId( resource.shallowId );
         this._saved = true;
         this._options = {};
         this._properties = new EditableSet( this );
     }
 
-    /**
-    * Use this function to initialize the resource. This called just after the resource is created and its entry set.
-    */
-    initialize() {
+    // /**
+    // * Use this function to initialize the resource. This called just after the resource is created and its entry set.
+    // */
+    // initialize() {
 
-    }
+    // }
 
-    /**
-    * This function is called just before the entry is saved to the database.
-    */
-    onSaving(): any { }
+    // /**
+    // * This function is called just before the entry is saved to the database.
+    // */
+    // onSaving(): any { }
 
 
     /**
@@ -68,9 +84,9 @@ export abstract class ProjectResource<T extends HatcheryServer.IResource> extend
 
 
 
-    dispose() {
-        super.dispose();
-    }
+    // dispose() {
+    //     super.dispose();
+    // }
 
     /**
     * Creates an option which is associated with this asset. The name of the option must be unique. Use this to add your own custom data

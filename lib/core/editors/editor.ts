@@ -1,8 +1,8 @@
 import { EventDispatcher } from '../event-dispatcher';
-import { EditorEvents } from '../../setup/events';
+// import { EditorEvents } from '../../setup/events';
 import { Project } from '../../models/project';
 import { EditorAction } from './editor-action';
-import { ProjectResource } from '../project-resources/project-resource';
+import { ProjectResource } from '../../models/project-resource';
 
 /**
  * The base class for all editors. Editors are simple wrappers for resources that can be edited
@@ -107,8 +107,8 @@ export abstract class Editor extends EventDispatcher {
      * Triggers a change in the tree structure
      */
     invalidate() {
-        this.emit<EditorEvents, void>( 'change' );
-        this._project.invalidate();
+        // this.emit<EditorEvents, void>( 'change' );
+        // this._project.invalidate();
     }
 
     /**
@@ -116,11 +116,11 @@ export abstract class Editor extends EventDispatcher {
      * @param updateDatabase If true, the editor will provide edits that must be saved to the datavase
      */
     collapse( updateDatabase: boolean = false ) {
-        this._project.removeEditor( this );
-        if ( updateDatabase )
-            this._project.editResource( this.resource.entry._id, this.serialize() );
+        // this._project.removeEditor( this );
+        // if ( updateDatabase )
+        //     this._project.editResource( this.resource.entry._id, this.serialize() );
 
-        // Cleanup
-        this.dispose();
+        // // Cleanup
+        // this.dispose();
     }
 }

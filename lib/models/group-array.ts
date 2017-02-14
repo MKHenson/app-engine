@@ -18,7 +18,7 @@ export class GroupArray extends ProjectResource<HatcheryServer.IGroup> {
     * @param shallowId
     */
     addReference( shallowId: number ) {
-        this.entry.items!.push( shallowId );
+        this.resource.items!.push( shallowId );
         this.saved = false;
     }
 
@@ -27,8 +27,8 @@ export class GroupArray extends ProjectResource<HatcheryServer.IGroup> {
     * @param shallowId
     */
     removeReference( shallowId: number ) {
-        if ( this.entry.items!.indexOf( shallowId ) !== -1 )
-            this.entry.items!.splice( this.entry.items!.indexOf( shallowId ), 1 );
+        if ( this.resource.items!.indexOf( shallowId ) !== -1 )
+            this.resource.items!.splice( this.resource.items!.indexOf( shallowId ), 1 );
 
         this.saved = false;
     }

@@ -1,6 +1,6 @@
 ﻿import { Prop } from './prop';
 import { PropertyType } from '../../setup/enums';
-import { File } from '../project-resources/file';
+import { File } from '../../models/file';
 
 /**
 * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data

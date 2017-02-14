@@ -137,9 +137,20 @@ export function post<T>( url: string, data: any ): Promise<T> {
 }
 
 /**
+ * Given an object, this function returns the object as query parameter string.
+ */
+function buildQueryParams( params ) {
+    let parts: string[] = [];
+    for ( const i in params )
+        parts.push( i + '=' + encodeURI( params[ i ] ) );
+
+    return '?' + parts.join( '&' );
+}
+
+/**
 * A predefined shorthand method for calling put methods that use JSON communication
 */
-export function get<T>( url: string ): Promise<T> {
+export function get<T>( url: string, queryParams?: any ): Promise<T> {
     return new Promise<T>( function( resolve, reject ) {
         const xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
@@ -153,7 +164,7 @@ export function get<T>( url: string ): Promise<T> {
             }
         };
 
-        xhttp.open( 'GET', url, true );
+        xhttp.open( 'GET', url + ( queryParams ? buildQueryParams( queryParams ) : '' ), true );
         xhttp.withCredentials = _withCredentials;
         xhttp.send();
     });

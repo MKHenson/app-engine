@@ -1,9 +1,9 @@
 import { Behaviour } from './behaviour';
 import { Portal } from './portal';
-import { ProjectResource } from '../../../project-resources/project-resource';
+import { ProjectResource } from '../../../../models/project-resource';
 import { PluginManager } from '../../../plugin-manager';
 import { Prop } from '../../../properties/prop';
-import { Asset } from '../../../project-resources/asset';
+import { Asset } from '../../../../models/asset';
 
 /**
  * A behaviour that contains an asset/resource reference
@@ -22,7 +22,7 @@ export class BehaviourAsset extends Behaviour {
         this.parameters[ 0 ].property.setVal( asset );
 
         if ( asset )
-            this.alias = asset.entry.name!;
+            this.alias = asset.resource.name!;
     }
 
     /**

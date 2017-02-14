@@ -1,7 +1,7 @@
 ﻿import { Prop } from './prop';
 import { PropertyType } from '../../setup/enums';
 import { User } from '../../models/user';
-import { GroupArray } from '../project-resources/group-array';
+import { GroupArray } from '../../models/group-array';
 
 /**
 * Defines a property variable. These are variables wrapped in sugar code to help sanitize and differentiate different pieces of data
@@ -30,7 +30,7 @@ export class PropGroup extends Prop<GroupArray | null> {
         const token = super.tokenize( slim );
 
         // Overrites the value as the resources shallow Id
-        token.value = ( this._value ? this._value.entry.shallowId : -1 );
+        token.value = ( this._value ? this._value.resource.shallowId : -1 );
 
         return token;
     }

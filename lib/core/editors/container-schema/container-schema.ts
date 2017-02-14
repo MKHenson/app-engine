@@ -4,7 +4,7 @@ import { Comment } from './items/comment';
 import { Behaviour } from './items/behaviour';
 import { BehaviourAsset } from './items/behaviour-asset';
 import { CanvasItem } from './items/canvas-item';
-import { Container } from '../../project-resources/container';
+import { Container } from '../../../models/container';
 import { Project } from '../../../models/project';
 import { PluginManager } from '../../plugin-manager';
 import { SelectionChanged } from './actions/selection-changed';
@@ -30,7 +30,7 @@ export class ContainerSchema extends Editor {
         this.opened = false;
         this._activeLink = null;
 
-        this.deserialize( container.entry.json! );
+        this.deserialize( container.resource.json! );
     }
 
     /**
