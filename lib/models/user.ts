@@ -1,4 +1,5 @@
 import { Project } from './project';
+import { Projects } from './projects';
 import { Model } from './model';
 import { UserMeta } from './user-meta';
 import { IAjaxError, post, put, get } from '../core/utils';
@@ -10,23 +11,25 @@ import { DB } from '../setup/db';
 export class User extends Model<UsersInterface.IUserEntry> {
     private static _singleton: User;
     public project: Project | null;
-    public meta: UserMeta | null;
+    private _projects: Projects | null;
+    private _meta: UserMeta | null;
 
     constructor() {
         super();
-        this.meta = null;
+        this._meta = null;
         this.project = null;
+        this._projects = new Projects( { parent: this });
     }
 
     /**
      * Attempts to log the user out
      */
     async logout() {
-        const response = await get<UsersInterface.IResponse>( `${ DB.USERS }/logout` );
+        const response = await get<UsersInterface.IResponse>( `${DB.USERS}/logout` );
         if ( response.error )
             throw new Error( response.message );
 
-        this.meta = null;
+        this._meta = null;
         return true;
     }
 
@@ -34,7 +37,7 @@ export class User extends Model<UsersInterface.IUserEntry> {
      * Sends a server request to check if a user is logged in
      */
     async authenticated() {
-        const authResponse = await get<UsersInterface.IAuthenticationResponse>( `${ DB.USERS }/authenticated` );
+        const authResponse = await get<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/authenticated` );
 
         if ( authResponse.error )
             throw new Error( authResponse.message );
@@ -42,8 +45,8 @@ export class User extends Model<UsersInterface.IUserEntry> {
         if ( !authResponse.authenticated )
             return false;
 
-        this.meta = new UserMeta( { id: authResponse.user!.username });
-        await this.meta.fetch();
+        this._meta = new UserMeta( { id: authResponse.user!.username });
+        await this._meta.fetch();
 
         this.resource = authResponse.user!;
         return true;
@@ -53,17 +56,17 @@ export class User extends Model<UsersInterface.IUserEntry> {
      * Attempts to log the user in using the token provided
      */
     async login( token: UsersInterface.ILoginToken ) {
-        const authResponse = await post<UsersInterface.IAuthenticationResponse>( `${ DB.USERS }/users/login`, token );
+        const authResponse = await post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/login`, token );
 
         if ( authResponse.error )
             throw new Error( authResponse.message );
 
         if ( !authResponse.authenticated )
-            throw new Error( `User could not be authenticated: '${ authResponse.message }'` );
+            throw new Error( `User could not be authenticated: '${authResponse.message}'` );
 
         let entry = authResponse.user!;
-        this.meta = new UserMeta( { id: authResponse.user!.username });
-        await this.meta.fetch();
+        this._meta = new UserMeta( { id: authResponse.user!.username });
+        await this._meta.fetch();
 
         this.resource = entry;
         return this;
@@ -74,7 +77,7 @@ export class User extends Model<UsersInterface.IUserEntry> {
      * @returns A promise with the return message from the server.
      */
     async register( token: UsersInterface.IRegisterToken ) {
-        const response = await post<UsersInterface.IAuthenticationResponse>( `${ DB.USERS }/users/register`, token );
+        const response = await post<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/register`, token );
 
         if ( response.error )
             throw new Error( response.message );
@@ -88,7 +91,7 @@ export class User extends Model<UsersInterface.IUserEntry> {
      */
     async resetPassword( user: string ) {
 
-        const response = await get<UsersInterface.IResponse>( `${ DB.USERS }/users/${ user }/request-password-reset` );
+        const response = await get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/request-password-reset` );
 
         if ( response.error )
             throw new Error( response.message );
@@ -101,7 +104,7 @@ export class User extends Model<UsersInterface.IUserEntry> {
      * @returns A promise with the return message from the server.
      */
     async resendActivation( user: string ) {
-        const response = await get<UsersInterface.IResponse>( `${ DB.USERS }/users/${ user }/resend-activation` );
+        const response = await get<UsersInterface.IResponse>( `${DB.USERS}/users/${user}/resend-activation` );
         if ( response.error )
             throw new Error( response.message );
 
@@ -122,7 +125,7 @@ export class User extends Model<UsersInterface.IUserEntry> {
         };
 
         return new Promise<ModepressAddons.ICreateProject>( function( resolve, reject ) {
-            post<ModepressAddons.ICreateProject>( `${ DB.API }/projects`, token ).then( function( data ) {
+            post<ModepressAddons.ICreateProject>( `${DB.API}/projects`, token ).then( function( data ) {
                 if ( data.error )
                     return reject( new Error( data.message ) );
 
@@ -137,7 +140,7 @@ export class User extends Model<UsersInterface.IUserEntry> {
                 return resolve( data );
 
             }).catch( function( err: IAjaxError ) {
-                reject( new Error( `An error occurred while connecting to the server. ${ err.status }: ${ err.message }` ) );
+                reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
             })
         });
     }
@@ -167,11 +170,11 @@ export class User extends Model<UsersInterface.IUserEntry> {
     * @returns The user details token
     */
     updateDetails( token: HatcheryServer.IUserMeta ): Promise<UsersInterface.IResponse> {
-        const meta = this.meta!;
+        const meta = this._meta!;
         const that = this;
 
         return new Promise<Modepress.IResponse>( function( resolve, reject ) {
-            put( `${ DB.API }/user-details/${ that.resource!.username }`, token ).then( function( data: UsersInterface.IResponse ) {
+            put( `${DB.API}/user-details/${that.resource!.username}`, token ).then( function( data: UsersInterface.IResponse ) {
                 if ( data.error )
                     return reject( new Error( data.message ) );
                 else {
@@ -183,7 +186,7 @@ export class User extends Model<UsersInterface.IUserEntry> {
                 return resolve( data );
 
             }).catch( function( err: IAjaxError ) {
-                return reject( new Error( `An error occurred while connecting to the server. ${ err.status }: ${ err.message }` ) );
+                return reject( new Error( `An error occurred while connecting to the server. ${err.status}: ${err.message}` ) );
             });
         });
     }
@@ -223,5 +226,13 @@ export class User extends Model<UsersInterface.IUserEntry> {
             User._singleton = new User();
 
         return User._singleton;
+    }
+
+    get projects(): Projects | null {
+        return this._projects;
+    }
+
+    get meta(): UserMeta | null {
+        return this._meta;
     }
 }

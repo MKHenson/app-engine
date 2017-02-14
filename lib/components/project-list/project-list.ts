@@ -1,6 +1,7 @@
 import { JML } from '../../jml/jml';
 import { Pager } from '../pager/pager';
-import { User } from '../../models/user';
+// import { User } from '../../models/user';
+import { Projects } from '../../models/projects';
 // import { ImagePreview } from '../image-preview/image-preview';
 import { SearchBox } from '../search-box/search-box';
 
@@ -12,13 +13,13 @@ export class ProjectList extends HTMLElement {
     public onProjectSelected?: ( project: HatcheryServer.IProject ) => void;
     public onProjectDClicked?: ( project: HatcheryServer.IProject ) => void;
     public noProjectMessage?: string;
-    public user: User;
+    public username: string;
 
     private _loading?: boolean;
     private _searchText?: string;
     private _selectedProject?: HatcheryServer.IProject | null;
     private _errorMsg?: string | null;
-    private _projects?: HatcheryServer.IProject[];
+    private _projects: Projects;
 
     /**
      * Creates a new instance
@@ -29,7 +30,7 @@ export class ProjectList extends HTMLElement {
         this._loading = false;
         this._selectedProject = null;
         this._errorMsg = null;
-        this._projects = [];
+        this._projects = new Projects();
         this._searchText = '';
 
         this.appendChild( JML.div( { className: 'projects-toolbar background' }, [
@@ -88,6 +89,13 @@ export class ProjectList extends HTMLElement {
         //                 </div>
         //             </div>
         //         </Pager>
+    }
+
+    async connectedCallback() {
+        if ( this.username )
+            this._projects.baseUrl = `users/${this.username}/`;
+
+        await this._projects.fetch();
     }
 
     private async _fetchProjects( index: number, limit: number ) {
