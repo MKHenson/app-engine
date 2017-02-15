@@ -1,13 +1,11 @@
 import { EventDispatcher } from './event-dispatcher';
 import { BehaviourDefinition } from './behaviour-definition';
-import { AssetTemplate } from './asset-template';
 import { TypeConverter } from './type-converter';
 import { PortalTemplate } from './portal-template';
 import { PropAsset } from './properties/prop-asset';
 import { PropBool } from './properties/prop';
 import { PluginManagerEvents, ITemplateEvent } from '../setup/events';
 import { IPlugin, IPreviewFactory } from 'hatchery-editor-plugins';
-import { AssetClass } from './asset-class';
 import { ImageVisualizer } from './file-visualizers/image-visualizer';
 
 // declare var __newPlugin: IPlugin | null;
@@ -20,7 +18,6 @@ export class PluginManager extends EventDispatcher {
 
     private _store: Redux.Store<HatcheryEditor.IStore>;
     private _behaviourTemplates: Array<BehaviourDefinition>;
-    private _assetTemplates: Array<AssetTemplate>;
     private _converters: Array<TypeConverter>;
     private _previewVisualizers: Array<IPreviewFactory>;
 
@@ -33,7 +30,6 @@ export class PluginManager extends EventDispatcher {
         this._store = store;
 
         this._behaviourTemplates = new Array<BehaviourDefinition>();
-        this._assetTemplates = new Array<AssetTemplate>();
         this._converters = new Array<TypeConverter>();
 
         // Create some standard templates
@@ -126,14 +122,6 @@ export class PluginManager extends EventDispatcher {
                 this._converters.push( converters[ i ] );
         }
 
-        // Get asset templates
-        let atemplates: Array<AssetTemplate> = plugin.getAssetsTemplate();
-        if ( atemplates ) {
-            let i = atemplates.length;
-            while ( i-- )
-                this._assetTemplates.push( atemplates[ i ] );
-        }
-
         return;
     }
 
@@ -172,8 +160,6 @@ export class PluginManager extends EventDispatcher {
         i = toRemove2.length;
         while ( i-- )
             this._converters.splice( jQuery.inArray( toRemove2[ i ], this._converters ), 1 );
-
-        this._assetTemplates.splice( 0, this._assetTemplates.length );
 
         plugin.unload();
     }
@@ -230,22 +216,6 @@ export class PluginManager extends EventDispatcher {
     }
 
     /**
-     * Gets an asset class by its name
-     * @param name The name of the asset class
-     */
-    getAssetClass( name: string ): AssetClass | null {
-        // Assign any of the options / missing variables for classes that are updated in code but not in the DB
-        const assetTemplates: Array<AssetTemplate> = this._assetTemplates;
-        for ( let i = 0, l = assetTemplates.length; i < l; i++ ) {
-            const assetClass: AssetClass | null = assetTemplates[ i ].findClass( name );
-            if ( assetClass )
-                return assetClass;
-        }
-
-        return null;
-    }
-
-    /**
      * Creates a thumbnail preview of the file
      */
     thumbnail( file: HatcheryServer.IFile ): Promise<HTMLCanvasElement> | null {
@@ -278,7 +248,6 @@ export class PluginManager extends EventDispatcher {
         return null;
     }
 
-    get assetTemplates(): AssetTemplate[] { return this._assetTemplates; }
     get behaviourTemplates(): BehaviourDefinition[] { return this._behaviourTemplates; }
 
     /**
