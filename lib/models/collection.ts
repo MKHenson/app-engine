@@ -67,7 +67,9 @@ export class Collection<T> extends EventDispatcher {
         if ( response.error )
             throw new Error( response.message );
 
-        this.models.push( new this.modelClass<T>( { id: response.data[ this.modelId ], collection: this, resource: response.data }) );
+        const model = new this.modelClass<T>( { id: response.data[ this.modelId ], collection: this, resource: response.data });
+        this.models.push( model );
+        return model;
     }
 
     parse( databaseResponse: Modepress.IGetArrayResponse<T> ): T[] {

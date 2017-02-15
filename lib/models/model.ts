@@ -60,7 +60,7 @@ export class Model<R> extends EventDispatcher {
      * Generates the URL path of the model's REST endpoint
      */
     protected getRoutPath(): string {
-        return `${ this.host }/${ this.getNormalizedUrl() }`;
+        return `${this.host}/${this.getNormalizedUrl()}`;
     }
 
     get id(): string {
@@ -97,16 +97,16 @@ export class Model<R> extends EventDispatcher {
         return response;
     }
 
-    async fetch<T>() {
-        const response = await get<Modepress.IGetResponse<T>>( this.getRoutPath() );
+    async fetch() {
+        const response = await get<Modepress.IGetResponse<R>>( this.getRoutPath() );
         if ( response.error )
             throw new Error( response.message );
 
-        this._resource = this.parse<T>( response.data );
+        this._resource = this.parse( response.data );
         this._id = this._resource[ this.idAttribute ];
         this.emit<ModelEvents, void>( 'fetched' );
     }
 
-    parse<T>( dbModel: T | R ): R { return dbModel as R; }
+    parse( dbModel: R ): R { return dbModel; }
     sync( options: any ): any { return this._resource; }
 }
