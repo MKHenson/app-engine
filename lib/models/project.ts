@@ -1,15 +1,16 @@
 import { Model, IModelOptions } from './model';
+import { Asset } from './asset';
+import { File } from './file';
+import { GroupArray } from './group-array';
+import { Script } from './script';
+import { Container } from './container';
+import { Collection } from './collection';
 // import { Editor } from '../core/editors/editor';
 // import { Build } from './build';
 // import { User } from './user';
 import { ResourceType } from '../setup/enums';
 // import { ProjectEvents, IResourceEvent, IEditorEvent, ResourceEvents } from '../setup/events';
 import { ProjectResource } from '../models/project-resource';
-// import { Asset } from '../core/project-resources/asset';
-// import { Container } from '../core/project-resources/container';
-// import { Script } from '../core/project-resources/script';
-// import { File } from '../core/project-resources/file';
-// import { GroupArray } from '../core/project-resources/group-array';
 // import { DB } from '../setup/db';
 // import { IAjaxError, get, put, del, post, generateLocalId } from '../core/utils';
 // import { PluginManager } from '../core/plugin-manager';
@@ -27,11 +28,21 @@ export class Project extends Model<HatcheryServer.IProject> {
     // private _restPaths: { [ type: number ]: { url: string; array: Array<ProjectResource<HatcheryServer.IResource>> }; }
     // private _entry: HatcheryServer.IProject;
 
+    private _resources: Collection<HatcheryServer.IResource>[];
+
     /**
      * @param id The database id of this project
      */
     constructor( options?: IModelOptions<HatcheryServer.IProject> ) {
         super( options );
+
+        this._resources = [
+            new Collection<HatcheryServer.IAsset>( { url: 'files', modelClass: File, parent: this }),
+            new Collection<HatcheryServer.IAsset>( { url: 'assets', modelClass: Asset, parent: this }),
+            new Collection<HatcheryServer.IAsset>( { url: 'containers', modelClass: Container, parent: this }),
+            new Collection<HatcheryServer.IAsset>( { url: 'groups', modelClass: GroupArray, parent: this }),
+            new Collection<HatcheryServer.IAsset>( { url: 'scripts', modelClass: Script, parent: this })
+        ];
 
         // this.openEditors = [];
         // this.activeEditor = null;
