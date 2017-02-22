@@ -38,7 +38,7 @@ export class Collection<T> extends EventDispatcher {
             return this.baseUrl;
 
         if ( this._parent )
-            this._parent.getNormalizedUrl() + this.url;
+            return this._parent.getNormalizedUrl() + this.url;
 
         return this.url;
     }
