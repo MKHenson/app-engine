@@ -25,7 +25,7 @@ export class User extends Model<UsersInterface.IUserEntry> {
      * Attempts to log the user out
      */
     async logout() {
-        const response = await get<UsersInterface.IResponse>( `${DB.USERS}/logout` );
+        const response = await get<UsersInterface.IResponse>( `${DB.USERS}/users/logout` );
         if ( response.error )
             throw new Error( response.message );
 
@@ -37,7 +37,7 @@ export class User extends Model<UsersInterface.IUserEntry> {
      * Sends a server request to check if a user is logged in
      */
     async authenticated() {
-        const authResponse = await get<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/authenticated` );
+        const authResponse = await get<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/authenticated` );
 
         if ( authResponse.error )
             throw new Error( authResponse.message );

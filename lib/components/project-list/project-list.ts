@@ -94,9 +94,8 @@ export class ProjectList extends HTMLElement {
     async connectedCallback() {
         if ( this.username ) {
             this._projects = new Projects();
-            this._projects.baseUrl = `users/${ this.username }/`;
+            this._projects.baseUrl = `users/${this.username}/`;
 
-            await this._projects.fetch( { index: 0, limit: 6 });
 
             const projectsDom = this.querySelector( '.projects' ) !;
             empty( projectsDom );
@@ -107,6 +106,8 @@ export class ProjectList extends HTMLElement {
     }
 
     private async _fetchProjects( index: number, limit: number ) {
+
+        await this._projects.fetch( { index: index, limit: limit });
 
         // this.user.
 

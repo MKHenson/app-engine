@@ -1,5 +1,5 @@
 import { ProjectResource } from './project-resource';
-
+import { IModelOptions } from './model';
 
 /**
 * A wrapper for DB file instances
@@ -9,7 +9,7 @@ export class File extends ProjectResource<HatcheryServer.IFile> {
     /**
     * @param entry The DB entry of this file
     */
-    constructor( entry: HatcheryServer.IFile ) {
-        super( entry );
+    constructor( options?: IModelOptions<HatcheryServer.IFile> ) {
+        super( options );
     }
 }

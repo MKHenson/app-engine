@@ -44,7 +44,7 @@ export function authenticated( forward: string = '/overview' ) {
     return ( dispatch: Redux.Dispatch<IUserAction> ) => {
         dispatch<IUserAction>( { type: 'USER_REQUEST_PENDING' });
 
-        get<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/authenticated` ).then(( authResponse ): void => {
+        get<UsersInterface.IAuthenticationResponse>( `${DB.USERS}/users/authenticated` ).then(( authResponse ): void => {
 
             if ( authResponse.error )
                 throw new Error( authResponse.message );
@@ -90,7 +90,7 @@ export function logout() {
     return ( dispatch: Redux.Dispatch<IUserAction> ) => {
         dispatch<IUserAction>( { type: 'USER_REQUEST_PENDING' });
 
-        get<UsersInterface.IResponse>( `${DB.USERS}/logout` ).then( function( data ) {
+        get<UsersInterface.IResponse>( `${DB.USERS}/users/logout` ).then( function( data ) {
             if ( data.error )
                 throw new Error( data.message );
 
