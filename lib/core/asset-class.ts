@@ -93,7 +93,7 @@ export class AssetClass {
         let topClass: AssetClass | null = this;
         while ( topClass !== null ) {
 
-            //Add all the variables to the object we are returning
+            // Add all the variables to the object we are returning
             for ( let i = 0; i < topClass.variables!.length; i++ ) {
                 const variable = topClass.variables![ i ];
 

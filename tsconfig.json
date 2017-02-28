@@ -37,6 +37,7 @@
         "lib/core/user.ts",
         "lib/core/project.ts",
         "lib/core/router.ts",
+        "lib/core/asset-class.ts",
         "lib/components/popup/popup.ts",
         "lib/components/menu/menu.ts",
         "lib/components/search-box/search-box.ts",
